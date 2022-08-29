@@ -39,10 +39,9 @@ namespace Study_DOT_NET.Controllers
         }
 
         [HttpGet("{roomId:length(24)}/{offset}/{limit}")]
-        // public async Task<List<Message>?> Get(string roomId, int offset, int limit)
-        public async Task<List<Message>?> Get(string roomId)
+        public async Task<List<Message>?> Get(string roomId, int offset, int limit)
         {
-            Console.WriteLine($"All is ok. roomId: {roomId}, offset: {0}, limit: {50}");
+            Console.WriteLine($"All is ok. roomId: {roomId}, offset: {offset}, limit: {limit}");
             List<Message>? messages = await this._messagesService.GetRoomContentAsync(roomId, 0, 50);
 
             if (messages is null)
@@ -51,6 +50,19 @@ namespace Study_DOT_NET.Controllers
             }
 
             return messages;
+        }
+
+        [HttpGet]
+        public async Task<int> GetAmountOfMessages(string roomId)
+        {
+            List<Message> result = await this._messagesService.getAllMessagesFromRoom(roomId);
+
+            if (result == null)
+            {
+                return 0;
+            }
+
+            return result.Count;
         }
 
         [HttpPost]

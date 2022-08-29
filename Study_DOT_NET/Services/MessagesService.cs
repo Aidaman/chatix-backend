@@ -28,6 +28,10 @@ public class MessagesService
             .Limit(limit)
             .SortBy((Message message) => message.CreatedAt)
             .ToListAsync();
+    public async Task<List<Message>?> getAllMessagesFromRoom(string roomId) =>
+        await this._messagesCollection
+            .Find((Message x) => x.RoomId == roomId)
+            .ToListAsync();
 
     public async Task CreateAsync(Message newMessage) =>
         await this._messagesCollection.InsertOneAsync(newMessage);
@@ -37,4 +41,5 @@ public class MessagesService
 
     public async Task RemoveAsync(string id) =>
         await this._messagesCollection.DeleteOneAsync((Message x) => x.Id == id);
+
 }
