@@ -41,3 +41,11 @@ C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\obj\Debug\net6.0\refint\S
 C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\obj\Debug\net6.0\Study_DOT_NET.pdb
 C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\obj\Debug\net6.0\Study_DOT_NET.genruntimeconfig.cache
 C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\obj\Debug\net6.0\ref\Study_DOT_NET.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\System.IdentityModel.Tokens.Jwt.dll

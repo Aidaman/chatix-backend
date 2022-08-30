@@ -38,7 +38,7 @@ namespace Study_DOT_NET.Controllers
             return message;
         }
 
-        [HttpGet("{roomId:length(24)}/{offset}/{limit}")]
+        [HttpGet("RoomContent/{roomId:length(24)}/{offset}/{limit}")]
         public async Task<List<Message>?> Get(string roomId, int offset, int limit)
         {
             Console.WriteLine($"All is ok. roomId: {roomId}, offset: {offset}, limit: {limit}");
@@ -52,7 +52,7 @@ namespace Study_DOT_NET.Controllers
             return messages;
         }
 
-        [HttpGet]
+        [HttpGet("GetAmountOfMessages/{roomId}")]
         public async Task<int> GetAmountOfMessages(string roomId)
         {
             List<Message> result = await this._messagesService.getAllMessagesFromRoom(roomId);
@@ -92,7 +92,7 @@ namespace Study_DOT_NET.Controllers
             return NoContent();
         }
 
-        [HttpDelete("id;length(24)")]
+        [HttpDelete("id:length(24)")]
         public async Task<IActionResult> Delete(string id)
         {
             Message message = await this._messagesService.GetAsync(id);
