@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Study_DOT_NET.Models;
+using Study_DOT_NET.Shared.Models;
 
-namespace Study_DOT_NET.Services
+namespace Study_DOT_NET.Shared.Services
 {
     public class RoomsService
     {
@@ -29,5 +30,7 @@ namespace Study_DOT_NET.Services
 
         public async Task RemoveAsync(string id) =>
             await this._roomsCollection.DeleteOneAsync((Room x) => x.Id == id);
+        public async Task<List<Room>> SearchAsync(string title) =>
+            await this._roomsCollection.Find((Room x) => x.Title.Contains(title)).ToListAsync();
     }
 }

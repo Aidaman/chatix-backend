@@ -1,4 +1,4 @@
-﻿namespace Study_DOT_NET.Models;
+﻿namespace Study_DOT_NET.Shared.Models;
 
 public class ChatDatabaseSettings
 {

@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Study_DOT_NET.Models;
+using Study_DOT_NET.Shared.Models;
 
-namespace Study_DOT_NET.Services;
+namespace Study_DOT_NET.Shared.Services;
 
 public class MessagesService
 {
@@ -41,5 +42,6 @@ public class MessagesService
 
     public async Task RemoveAsync(string id) =>
         await this._messagesCollection.DeleteOneAsync((Message x) => x.Id == id);
-
+    public async Task<List<Message>> SearchAsync(string content) =>
+        await this._messagesCollection.Find((Message x) => x.MessageContent.Contains(content)).ToListAsync();
 }

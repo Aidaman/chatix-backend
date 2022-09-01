@@ -1,11 +1,15 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Study_DOT_NET.Models;
+using Study_DOT_NET.Shared.Models;
 
-namespace Study_DOT_NET.Services;
+namespace Study_DOT_NET.Shared.Services;
 
 public class UsersService
 {
+    private readonly User _currentUser = null!;
+    //TODO: Authentication
+
     private readonly IMongoCollection<User> _usersCollection;
 
     public UsersService(IOptions<ChatDatabaseSettings> chatDatabaseSettings)
@@ -29,4 +33,6 @@ public class UsersService
 
     public async Task RemoveAsync(string id) =>
         await this._usersCollection.DeleteOneAsync((User x) => x._Id == id);
+    public async Task<List<User>> SearchAsync(string name) =>
+        await this._usersCollection.Find((User x) => x.FullName.Contains(name)).ToListAsync();
 }

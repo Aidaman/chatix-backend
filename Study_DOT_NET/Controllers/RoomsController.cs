@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Study_DOT_NET.Models;
-using Study_DOT_NET.Services;
+using Study_DOT_NET.Shared.Models;
+using Study_DOT_NET.Shared.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

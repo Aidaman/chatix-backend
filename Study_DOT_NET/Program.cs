@@ -1,5 +1,5 @@
-using Study_DOT_NET.Models;
-using Study_DOT_NET.Services;
+using Study_DOT_NET.Shared.Models;
+using Study_DOT_NET.Shared.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +9,7 @@ builder.Services.Configure<ChatDatabaseSettings>(
 builder.Services.AddSingleton<MessagesService>();
 builder.Services.AddSingleton<RoomsService>();
 builder.Services.AddSingleton<UsersService>();
+builder.Services.AddSingleton<PrototypeRegistryService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -56,4 +57,6 @@ app.Run();
  *      Also i would want to use Facade here, for, as an example, even more simplify and wrap Commands for Sockets
  *
  *
+ * If OAuth (authorisation using Google/Github) is not a good solution for crypto-chat, then what would be better?
+ * Registration and login using phone, or email?
  */
