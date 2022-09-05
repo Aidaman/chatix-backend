@@ -12,6 +12,10 @@ public class UsersService
 
     private readonly IMongoCollection<User> _usersCollection;
 
+    public UsersService()
+    {
+
+    }
     public UsersService(IOptions<ChatDatabaseSettings> chatDatabaseSettings)
     {
         MongoClient mongoClient = new MongoClient(chatDatabaseSettings.Value.ConnectionString);

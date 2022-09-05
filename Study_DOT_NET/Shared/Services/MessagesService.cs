@@ -9,6 +9,10 @@ public class MessagesService
 {
     private readonly IMongoCollection<Message> _messagesCollection;
 
+    public MessagesService()
+    {
+
+    }
     public MessagesService(IOptions<ChatDatabaseSettings> chatDatabaseSettings)
     {
         MongoClient mongoClient = new MongoClient(chatDatabaseSettings.Value.ConnectionString);

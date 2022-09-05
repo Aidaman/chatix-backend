@@ -6,20 +6,24 @@ using Study_DOT_NET.Shared.Services;
 
 namespace Study_DOT_NET.Shared.Commands.Users;
 
-public class ConnectCommand : Command
+public class ConnectCommand : UsersCommand
 {
-    private readonly UsersService _usersService;
-
-    public ConnectCommand(User user, UserConfig data, UsersService usersService) : base(user)
+    public ConnectCommand(User user, UserConfig data, UsersService usersService)
+        : base(user, data, usersService)
     {
-        ((this.prototype as User)!).Id = data.Id;
-        ((this.prototype as User)!).FullName = data.Name;
 
-        _usersService = usersService;
     }
 
     public override Task Execute()
     {
         throw new NotImplementedException();
+
+        if (this.prototype is User user)
+        {
+            user.Id = this._userConfig.Id;
+            user.FullName = this._userConfig.Name;
+            
+
+        }
     }
 }

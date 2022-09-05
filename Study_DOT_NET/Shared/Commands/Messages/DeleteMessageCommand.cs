@@ -5,30 +5,23 @@ using Study_DOT_NET.Shared.Services;
 
 namespace Study_DOT_NET.Shared.Commands.Messages
 {
-    public class DeleteMessageCommand : Command
+    public class DeleteMessageCommand : MessageCommand
     {
-        private readonly MessagesService _messagesService;
-
-        public DeleteMessageCommand(Message message, MessageConfig data, MessagesService messagesService): base(message)
+        public DeleteMessageCommand(Message message, MessageConfig data, MessagesService messagesService)
+            : base(message, data, messagesService)
         {
-            ((this.prototype as Message)!).Id = data.Id;
-            ((this.prototype as Message)!).MessageContent = data.MessageContent;
-            ((this.prototype as Message)!).CreatorId = data.CreatorId;
-            ((this.prototype as Message)!).IsForwardedMessage = data.IsForwarded;
 
-            if (data.CreatorId == "system" || data.CreatorId == String.Empty)
-            {
-                ((this.prototype as Message)!).IsSystemMessage = true;
-            }
-
-            _messagesService = messagesService;
         }
 
         public override async Task Execute()
         {
-            Message? message = this.prototype as Message;
-            if (message != null)
+            if (this.prototype is Message message)
             {
+                message.Id = this._messageConfig.Id;
+                message.CreatorId = this._messageConfig.CreatorId;
+                message.MessageContent = this._messageConfig.MessageContent;
+                message.IsForwardedMessage = this._messageConfig.IsForwarded;
+
                 await this._messagesService.RemoveAsync(message.Id);
             }
         }

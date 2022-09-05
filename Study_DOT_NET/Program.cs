@@ -10,14 +10,20 @@ builder.Services.AddSingleton<MessagesService>();
 builder.Services.AddSingleton<RoomsService>();
 builder.Services.AddSingleton<UsersService>();
 builder.Services.AddSingleton<PrototypeRegistryService>();
+builder.Services.AddSingleton<SocketService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 WebApplication app = builder.Build();
 
+WebSocketOptions webSocketOptions = new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromMinutes(2),
+};
+
 app.UseHttpsRedirection();
-app.UseWebSockets();
+app.UseWebSockets(webSocketOptions);
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
@@ -57,6 +63,6 @@ app.Run();
  *      Also i would want to use Facade here, for, as an example, even more simplify and wrap Commands for Sockets
  *
  *
- * If OAuth (authorisation using Google/Github) is not a good solution for crypto-chat, then what would be better?
+ * If OAuth (authorization using Google/Github) is not a good solution for crypto-chat, then what would be better?
  * Registration and login using phone, or email?
  */

@@ -5,23 +5,21 @@ using Study_DOT_NET.Shared.Services;
 
 namespace Study_DOT_NET.Shared.Commands.Users;
 
-public class ChangeThemeCommand: Command
+public class ChangeThemeCommand: UsersCommand
 {
-    private readonly UsersService _usersService;
-
-    public ChangeThemeCommand(User user, UserConfig data, UsersService usersService): base(user)
+    public ChangeThemeCommand(User user, UserConfig data, UsersService usersService)
+        : base(user, data, usersService)
     {
-        ((this.prototype as User)!).Id = data.Id;
-        ((this.prototype as User)!).FullName = data.Name;
 
-        _usersService = usersService;
     }
 
     public override async Task Execute()
     {
-        User? user = this.prototype as User;
-        if (user != null)
+        if (this.prototype is User user)
         {
+            user.Id = this._userConfig.Id;
+            user.FullName = this._userConfig.Name;
+
             user.ColorTheme = user.ColorTheme.ToLower() == "dark" ? "light" : "dark";
             await this._usersService.UpdateAsync(user._Id, user);
         }

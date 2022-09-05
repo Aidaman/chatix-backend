@@ -5,26 +5,26 @@ using Study_DOT_NET.Shared.Services;
 
 namespace Study_DOT_NET.Shared.Commands.Rooms;
 
-public class SearchRoomCommand : Command
+public class SearchRoomCommand : RoomCommand
 {
     private readonly RoomsService _roomsService;
 
-    public SearchRoomCommand(Room prototype, RoomConfig data, RoomsService roomsService) : base(prototype)
+    public SearchRoomCommand(Room room, RoomConfig data, RoomsService roomsService)
+        : base(room, data, roomsService)
     {
-        (this.prototype as Room)!.Id = data.Id;
-        (this.prototype as Room)!.CreatorId = data.CreatorId;
-        (this.prototype as Room)!.LastAction = data.LastAction;
-        (this.prototype as Room)!.Participants = data.Participants;
-        (this.prototype as Room)!.Title = data.Title;
 
-        _roomsService = roomsService;
     }
 
     public override async Task Execute()
     {
-        Room? room = this.prototype as Room;
-        if (room != null)
+        if (this.prototype is Room room)
         {
+            room.Id = this._roomConfig.Id;
+            room.Title = this._roomConfig.Title;
+            room.CreatorId = this._roomConfig.CreatorId;
+            room.LastAction = this._roomConfig.LastAction;
+            room.Participants = this._roomConfig.Participants;
+
             await this._roomsService.SearchAsync(room.Title);
         }
     }

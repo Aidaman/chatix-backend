@@ -49,3 +49,7 @@ C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsof
 C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.AspNetCore.Connections.Abstractions.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.AspNetCore.SignalR.Common.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\Microsoft.Extensions.Features.dll
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\System.IO.Pipelines.dll

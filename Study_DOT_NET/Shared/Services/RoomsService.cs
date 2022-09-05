@@ -9,6 +9,10 @@ namespace Study_DOT_NET.Shared.Services
     {
         private readonly IMongoCollection<Room> _roomsCollection;
 
+        public RoomsService()
+        {
+
+        }
         public RoomsService(IOptions<ChatDatabaseSettings> chatDatabaseSettings)
         {
             MongoClient mongoClient = new MongoClient(chatDatabaseSettings.Value.ConnectionString);

@@ -1,6 +1,6 @@
 ﻿using Study_DOT_NET.Shared.Interfaces;
 
-namespace Study_DOT_NET.Shared.AbstractClasses;
+namespace Study_DOT_NET.Shared.Abstract;
 
 public abstract class Command
 {

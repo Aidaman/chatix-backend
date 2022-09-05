@@ -6,32 +6,36 @@ using Study_DOT_NET.Shared.Services;
 
 namespace Study_DOT_NET.Shared.Commands.Messages
 {
-    public class ReadMessageCommand: Command
+    public class ReadMessageCommand: MessageCommand
     {
-        private readonly MessagesService _messagesService;
-        private readonly string userId;
-        public ReadMessageCommand(Message message, MessageConfig data, MessagesService messagesService, string userId) : base(message)
+        private string userId;
+        public string UserId
         {
-            ((this.prototype as Message)!).Id = data.Id;
-            ((this.prototype as Message)!).MessageContent = data.MessageContent;
-            ((this.prototype as Message)!).CreatorId = data.CreatorId;
-            ((this.prototype as Message)!).IsForwardedMessage = data.IsForwarded;
-
-            if (data.CreatorId == "system" || data.CreatorId == String.Empty)
+            get => this.userId;
+            set
             {
-                ((this.prototype as Message)!).IsSystemMessage = true;
+                if (value.Length == 16)
+                {
+                    this.userId = value;
+                }
             }
+        }
 
+        public ReadMessageCommand(Message message, MessageConfig data, MessagesService messagesService, string userId)
+            : base(message, data, messagesService)
+        {
             this.userId = userId;
-            _messagesService = messagesService;
         }
 
         public override async Task Execute()
         {
-            Message? message = this.prototype as Message;
-
-            if (message != null && message.CreatorId != this.userId)
+            if (this.prototype is Message message && message.CreatorId != this.userId)
             {
+                message.Id = this._messageConfig.Id;
+                message.CreatorId = this._messageConfig.CreatorId;
+                message.MessageContent = this._messageConfig.MessageContent;
+                message.IsForwardedMessage = this._messageConfig.IsForwarded;
+
                 message.ReadBy?.Add(this.userId);
                 await this._messagesService.UpdateAsync(message.Id, message);
             }

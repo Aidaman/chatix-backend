@@ -15,7 +15,7 @@ public class Room: IPrototype
 
     [BsonElement("lastAction")]
     [BsonRepresentation(BsonType.DateTime)]
-    public DateTime? LastAction { get; set; } = null;
+    public DateTime LastAction { get; set; } = DateTime.Now;
 
     [BsonElement("creator")]
     [BsonRepresentation(BsonType.ObjectId)]

@@ -6,22 +6,21 @@ using Study_DOT_NET.Shared.Services;
 
 namespace Study_DOT_NET.Shared.Commands.Users;
 
-public class SearchUsersCommand: Command
+public class SearchUsersCommand : UsersCommand
 {
-    private readonly UsersService _usersService;
-    public SearchUsersCommand(User user, UserConfig data, UsersService usersService) : base(user)
+    public SearchUsersCommand(User user, UserConfig data, UsersService usersService)
+        : base(user, data, usersService)
     {
-        ((this.prototype as User)!).Id = data.Id;
-        ((this.prototype as User)!).FullName = data.Name;
 
-        _usersService = usersService;
     }
 
     public override async Task Execute()
     {
-        User? user = this.prototype as User;
-        if (user != null)
+        if (this.prototype is User user)
         {
+            user.Id = this._userConfig.Id;
+            user.FullName = this._userConfig.Name;
+
             await this._usersService.SearchAsync(user.FullName);
         }
     }
