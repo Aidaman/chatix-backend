@@ -1,7 +1,20 @@
 using Study_DOT_NET.Shared.Models;
 using Study_DOT_NET.Shared.Services;
+using System.Net.WebSockets;
+using Study_DOT_NET.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder => builder
+        .WithOrigins("http://localhost:4200")
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials());
+});
+
+builder.Services.AddSignalR();
 
 // Add services to the container.
 builder.Services.Configure<ChatDatabaseSettings>(
@@ -10,22 +23,29 @@ builder.Services.AddSingleton<MessagesService>();
 builder.Services.AddSingleton<RoomsService>();
 builder.Services.AddSingleton<UsersService>();
 builder.Services.AddSingleton<PrototypeRegistryService>();
-builder.Services.AddSingleton<SocketService>();
+// builder.Services.AddSingleton<SocketService>();
 
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
+// builder.Services.AddEndpointsApiExplorer();
 
 WebApplication app = builder.Build();
 
-WebSocketOptions webSocketOptions = new WebSocketOptions
-{
-    KeepAliveInterval = TimeSpan.FromMinutes(2),
-};
+// WebSocketOptions webSocketOptions = new WebSocketOptions
+// {
+//     KeepAliveInterval = TimeSpan.FromMinutes(2),
+// };
 
 app.UseHttpsRedirection();
-app.UseWebSockets(webSocketOptions);
+app.UseCors("CorsPolicy");
+// app.UseWebSockets(webSocketOptions);
 app.UseAuthorization();
 app.MapControllers();
+
+/* *---* Map Hubs *---* */
+app.MapHub<MessagesHub>("/message");
+app.MapHub<RoomHub>("/room");
+app.MapHub<UserHub>("/user");
+
 app.Run();
 
 /*
@@ -62,6 +82,7 @@ app.Run();
  *
  *      Also i would want to use Facade here, for, as an example, even more simplify and wrap Commands for Sockets
  *
+ * WebSockets | But SignalR if i won't be able to configure WebSockets
  *
  * If OAuth (authorization using Google/Github) is not a good solution for crypto-chat, then what would be better?
  * Registration and login using phone, or email?

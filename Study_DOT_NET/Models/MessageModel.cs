@@ -47,4 +47,9 @@ public class Message : IPrototype
     {
         return (IPrototype)MemberwiseClone();
     }
+
+    public override string ToString()
+    {
+        return $"\n>{this.CreatorId}, {this.CreatedAt}<\n-->{this.MessageContent}\n {(this.IsForwardedMessage? "Forwarded" : "")}, {(this.IsSystemMessage ? "System" : "")}, from {this.RoomId}\n";
+    }
 }
