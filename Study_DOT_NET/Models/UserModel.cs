@@ -29,7 +29,6 @@ public class User: IPrototype
     public string ColorTheme { get; set; } = null!;
 
     [BsonElement("id")]
-    [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; } = null;
 
     [BsonElement("name")] 

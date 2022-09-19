@@ -15,17 +15,12 @@ public class SearchRoomCommand : RoomCommand
 
     }
 
-    public override async Task Execute()
+    public override async Task<List<Room>?> Execute()
     {
         if (this.prototype is Room room)
         {
-            room.Id = this._roomConfig.Id;
-            room.Title = this._roomConfig.Title;
-            room.CreatorId = this._roomConfig.CreatorId;
-            room.LastAction = this._roomConfig.LastAction;
-            room.Participants = this._roomConfig.Participants;
-
-            await this._roomsService.SearchAsync(room.Title);
+            return await this._roomsService.SearchAsync(this._roomConfig.Title);
         }
+        else return null;
     }
 }

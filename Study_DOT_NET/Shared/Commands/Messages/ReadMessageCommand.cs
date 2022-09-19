@@ -27,18 +27,22 @@ namespace Study_DOT_NET.Shared.Commands.Messages
             this.userId = userId;
         }
 
-        public override async Task Execute()
+        public override async Task<Message?> Execute()
         {
             if (this.prototype is Message message && message.CreatorId != this.userId)
             {
-                message.Id = this._messageConfig.Id;
-                message.CreatorId = this._messageConfig.CreatorId;
-                message.MessageContent = this._messageConfig.MessageContent;
-                message.IsForwardedMessage = this._messageConfig.IsForwarded;
+                message = await this._messagesService.GetAsync(this._messageConfig.Id) ?? 
+                          throw new ApplicationException("Wrong message ID or such message is not present in the data-base");
 
-                message.ReadBy?.Add(this.userId);
-                await this._messagesService.UpdateAsync(message.Id, message);
+                if (message.CreatorId != this._messageConfig.UserId && !message.ReadBy.Contains(this._messageConfig.UserId))
+                {
+                    message.ReadBy?.Add(this.userId);
+                    await this._messagesService.UpdateAsync(message.Id, message);
+                    return message;
+                }
+                return null;
             }
+            else return null;
         }
     }
 }

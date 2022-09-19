@@ -7,5 +7,6 @@
         public string Title { get; set; } = String.Empty;
         public List<string> Participants { get; set; } = null!;
         public DateTime LastAction { get; set; } = DateTime.Now;
+        public bool IsPublic { get; set; } = false;
     }
 }

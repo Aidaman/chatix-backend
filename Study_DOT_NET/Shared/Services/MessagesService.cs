@@ -19,7 +19,7 @@ public class MessagesService
         IMongoDatabase mongoDatabase = mongoClient.GetDatabase(chatDatabaseSettings.Value.DatabaseName);
         this._messagesCollection = mongoDatabase.GetCollection<Message>(chatDatabaseSettings.Value.MessagesCollectionName);
     }
-
+    
     public async Task<List<Message>> GetAsync() => 
         await this._messagesCollection.Find(_ => true).ToListAsync();
 
@@ -29,9 +29,9 @@ public class MessagesService
     public async Task<List<Message>?> GetRoomContentAsync(string roomId, int offset, int limit)  => 
         await this._messagesCollection
             .Find((Message x) => x.RoomId == roomId)
+            .SortBy((Message message) => message.CreatedAt)
             .Skip(offset)
             .Limit(limit)
-            .SortBy((Message message) => message.CreatedAt)
             .ToListAsync();
     public async Task<List<Message>?> getAllMessagesFromRoom(string roomId) =>
         await this._messagesCollection

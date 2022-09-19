@@ -13,17 +13,16 @@ namespace Study_DOT_NET.Shared.Commands.Messages
 
         }
 
-        public override async Task Execute()
+        public override async Task<Message?> Execute()
         {
             if (this.prototype is Message message)
             {
                 message.Id = this._messageConfig.Id;
-                message.CreatorId = this._messageConfig.CreatorId;
-                message.MessageContent = this._messageConfig.MessageContent;
-                message.IsForwardedMessage = this._messageConfig.IsForwarded;
-
+                
                 await this._messagesService.RemoveAsync(message.Id);
+                return await this._messagesService.GetAsync(message.Id);
             }
+            else return null;
         }
     }
 }

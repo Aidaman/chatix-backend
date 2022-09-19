@@ -1,10 +1,9 @@
 ﻿using Study_DOT_NET.Models;
 using Study_DOT_NET.Shared.AbstractClasses;
-using Study_DOT_NET.Shared.Commands.Rooms;
 using Study_DOT_NET.Shared.ConfigClasses;
 using Study_DOT_NET.Shared.Services;
 
-namespace Study_DOT_NET.Shared.Commands.RoomAdministration;
+namespace Study_DOT_NET.Shared.Commands.Rooms;
 
 public class CreateRoomCommand: RoomCommand
 {
@@ -14,7 +13,7 @@ public class CreateRoomCommand: RoomCommand
 
     }
 
-    public override async Task Execute()
+    public override async Task<Room?> Execute()
     {
         if (this.prototype is Room room)
         {
@@ -23,8 +22,12 @@ public class CreateRoomCommand: RoomCommand
             room.CreatorId = this._roomConfig.CreatorId;
             room.LastAction = this._roomConfig.LastAction;
             room.Participants = this._roomConfig.Participants;
+            room.IsPublic = this._roomConfig.IsPublic;
+            room.AmountOfUnread = 0;
 
             await this._roomsService.CreateAsync(room);
+            return room;
         }
+        else return null;
     }
 }
