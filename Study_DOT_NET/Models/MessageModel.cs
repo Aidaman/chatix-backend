@@ -53,6 +53,7 @@ public class Message : IPrototype
     public bool IsForwardedMessage { get; set; } = false;
 
     [BsonElement("__v")]
+    [JsonIgnore]
     public Int32 __v { get; set; }
 
     public IPrototype Clone()

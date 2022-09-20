@@ -18,8 +18,9 @@ public class DeleteRoomCommand : RoomCommand
     {
         if (this.prototype is Room room)
         {
+            Room deletedRoom = await this._roomsService.GetAsync(this._roomConfig.Id) ?? throw new NullReferenceException("There is no such Room");
             await this._roomsService.RemoveAsync(this._roomConfig.Id);
-            return await this._roomsService.GetAsync(this._roomConfig.Id);
+            return deletedRoom;
         }
         else return null;
     }

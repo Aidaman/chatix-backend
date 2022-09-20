@@ -8,11 +8,7 @@ namespace Study_DOT_NET.Shared.Services;
 public class MessagesService
 {
     private readonly IMongoCollection<Message> _messagesCollection;
-
-    public MessagesService()
-    {
-
-    }
+    
     public MessagesService(IOptions<ChatDatabaseSettings> chatDatabaseSettings)
     {
         MongoClient mongoClient = new MongoClient(chatDatabaseSettings.Value.ConnectionString);

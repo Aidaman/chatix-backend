@@ -7,10 +7,11 @@ namespace Study_DOT_NET.Shared.Commands.Rooms;
 
 public class CreateRoomCommand: RoomCommand
 {
-    public CreateRoomCommand(Room room, RoomConfig data, RoomsService roomsService) 
+    private readonly UsersService _usersService;
+    public CreateRoomCommand(Room room, RoomConfig data, RoomsService roomsService, UsersService usersService) 
         : base(room, data, roomsService)
     {
-
+        this._usersService = usersService;
     }
 
     public override async Task<Room?> Execute()
@@ -20,10 +21,18 @@ public class CreateRoomCommand: RoomCommand
             room.Id = this._roomConfig.Id;
             room.Title = this._roomConfig.Title;
             room.CreatorId = this._roomConfig.CreatorId;
+            room.Creator = await this._usersService.GetAsync(this._roomConfig.CreatorId) ?? throw new NullReferenceException("There is no such User");
             room.LastAction = this._roomConfig.LastAction;
-            room.Participants = this._roomConfig.Participants;
+            room.ParticipantsIds = this._roomConfig.Participants;
             room.IsPublic = this._roomConfig.IsPublic;
             room.AmountOfUnread = 0;
+
+            List<User?> participants = new List<User?>();
+            foreach (string id in this._roomConfig.Participants)
+            {
+                participants.Add(await this._usersService.GetAsync(id));
+            }
+            room.Participants = participants;
 
             await this._roomsService.CreateAsync(room);
             return room;

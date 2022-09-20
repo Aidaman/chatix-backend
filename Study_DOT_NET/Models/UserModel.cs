@@ -13,13 +13,16 @@ public class User: IPrototype
     public string _Id { get; set; } = null!;
 
     [BsonElement("socketIds")]
+    [JsonIgnore]
     // [BsonRepresentation(BsonType.Array)]
     public List<string> SocketIds { get; set; } = null!;
 
-    [BsonElement("isPremium")] 
+    [BsonElement("isPremium")]
+    [JsonPropertyName("isPremium")]
     public bool IsPremium { get; set; } = false;
 
-    [BsonElement("isOnline")] 
+    [BsonElement("isOnline")]
+    [JsonPropertyName("isOnline")]
     public bool IsOnline { get; set; } = false;
 
     [BsonElement("blacklist")]
@@ -31,14 +34,16 @@ public class User: IPrototype
     [BsonElement("id")]
     public string? Id { get; set; } = null;
 
-    [BsonElement("name")] 
+    [BsonElement("name")]
+    [JsonPropertyName("name")]
     public string FullName { get; set; } = null!;
 
-    [BsonElement("avatar")] 
+    [BsonElement("avatar")]
+    [JsonPropertyName("avatar")]
     public string Avatar { get; set; } = null!;
 
     [BsonElement("__v")]
-    [JsonPropertyName("__v")]
+    [JsonIgnore]
     public Int32 __V { get; set; }
 
     public IPrototype Clone()

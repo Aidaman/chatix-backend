@@ -15,7 +15,7 @@ namespace Study_DOT_NET.Shared.ConfigClasses
          *  Or if it is "ReadMessage" then it is ID of User who read the message
          */
         [JsonPropertyName("userId")]
-        public string UserId { get; set; } = String.Empty;
+        public string? UserId { get; set; } = String.Empty;
         [JsonPropertyName("roomId")]
         public string RoomId { get; set; } = String.Empty;
         [JsonPropertyName("IsForwarded")]
