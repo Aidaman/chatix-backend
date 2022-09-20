@@ -60,6 +60,7 @@ namespace Study_DOT_NET.Hubs
                 throw;
             }
         }
+
         private async Task UpdateRoom(RoomConfig roomConfig, string message, string eventMessage)
         {
             try
@@ -153,7 +154,6 @@ namespace Study_DOT_NET.Hubs
 
         public async Task DeleteRoom(List<string> room)
         {
-
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
             await this.RoomDeleteOne(roomConfig);
         }

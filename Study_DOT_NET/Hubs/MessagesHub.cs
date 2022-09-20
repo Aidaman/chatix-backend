@@ -27,19 +27,23 @@ namespace Study_DOT_NET.Hubs
 
             this._createMessageCommand = new CreateMessageCommand(message!, new MessageConfig(), messagesService, usersService);
             this._updateMessageCommand = new UpdateMessageCommand(message!, new MessageConfig(), messagesService);
-            this._readMessageCommand = new ReadMessageCommand(message!, new MessageConfig(), messagesService, "");
+            this._readMessageCommand = new ReadMessageCommand(message!, new MessageConfig(), messagesService);
             this._deleteMessageCommand = new DeleteMessageCommand(message!, new MessageConfig(), messagesService);
+        }
+
+        private MessageConfig GenerateMessageConfig(List<string> message)
+        {
+            return JsonSerializer.Deserialize<MessageConfig>(message[0]
+                   ?? throw new NullReferenceException("message parameter is null"))
+                   ?? throw new NullReferenceException("unsuccessful deserialization result is null");
         }
 
         public async Task CreateMessage(List<string> message)
         {
             try
             {
-                MessageConfig messageConfig =
-                    JsonSerializer.Deserialize<MessageConfig>(message[0]
-                    ?? throw new NullReferenceException("message parameter is null"))
-                    ?? throw new NullReferenceException("unsuccessful deserialization result is null");
-
+                MessageConfig messageConfig = this.GenerateMessageConfig(message);
+                
                 this._createMessageCommand._messageConfig = messageConfig;
                 this._createMessageCommand._messageConfig!.Id = Guid.NewGuid().ToString("N").Substring(0, 24);
                 Message? createdMessage = await this._createMessageCommand.Execute();
@@ -57,10 +61,7 @@ namespace Study_DOT_NET.Hubs
         {
             try
             {
-                MessageConfig messageConfig =
-                    JsonSerializer.Deserialize<MessageConfig>(message[0] 
-                    ?? throw new NullReferenceException("message parameter is null"))
-                    ?? throw new NullReferenceException("unsuccessful deserialization result is null");
+                MessageConfig messageConfig = this.GenerateMessageConfig(message);
 
                 this._updateMessageCommand._messageConfig = messageConfig;
                 Message? updatedMessage = await this._updateMessageCommand.Execute();
@@ -79,10 +80,7 @@ namespace Study_DOT_NET.Hubs
         {
             try
             {
-                MessageConfig messageConfig =
-                    JsonSerializer.Deserialize<MessageConfig>(message[0] 
-                    ?? throw new NullReferenceException("message parameter is null"))
-                    ?? throw new NullReferenceException("unsuccessful deserialization result is null");
+                MessageConfig messageConfig = this.GenerateMessageConfig(message);
 
                 this._deleteMessageCommand._messageConfig = messageConfig;
                 Message? deletedMessage = await this._deleteMessageCommand.Execute();
@@ -101,10 +99,7 @@ namespace Study_DOT_NET.Hubs
         {
             try
             {
-                MessageConfig messageConfig =
-                    JsonSerializer.Deserialize<MessageConfig>(message[0]
-                    ?? throw new NullReferenceException("message parameter is null"))
-                    ?? throw new NullReferenceException("unsuccessful deserialization result is null");
+                MessageConfig messageConfig = this.GenerateMessageConfig(message);
 
                 this._readMessageCommand._messageConfig = messageConfig;
                 Message? updatedMessage = await this._readMessageCommand.Execute();

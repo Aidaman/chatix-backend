@@ -17,10 +17,9 @@ namespace Study_DOT_NET.Shared.Commands.Messages
         {
             if (this.prototype is Message message)
             {
-                message.Id = this._messageConfig.Id;
-                
+                message = await this._messagesService.GetAsync(this._messageConfig.Id) ?? throw new NullReferenceException("There is no such Message");
                 await this._messagesService.RemoveAsync(message.Id);
-                return await this._messagesService.GetAsync(message.Id);
+                return message;
             }
             else return null;
         }
