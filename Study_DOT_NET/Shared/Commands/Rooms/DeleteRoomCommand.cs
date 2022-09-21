@@ -4,7 +4,7 @@ using Study_DOT_NET.Shared.Commands.Rooms;
 using Study_DOT_NET.Shared.ConfigClasses;
 using Study_DOT_NET.Shared.Services;
 
-namespace Study_DOT_NET.Shared.Commands.RoomAdministration;
+namespace Study_DOT_NET.Shared.Commands.Rooms;
 
 public class DeleteRoomCommand : RoomCommand
 {
@@ -14,17 +14,14 @@ public class DeleteRoomCommand : RoomCommand
 
     }
 
-    public override async Task Execute()
+    public override async Task<Room?> Execute()
     {
         if (this.prototype is Room room)
         {
-            room.Id = this._roomConfig.Id;
-            room.Title = this._roomConfig.Title;
-            room.CreatorId = this._roomConfig.CreatorId;
-            room.LastAction = this._roomConfig.LastAction;
-            room.Participants = this._roomConfig.Participants;
-
-            await this._roomsService.RemoveAsync(room.Id);
+            Room deletedRoom = await this._roomsService.GetAsync(this._roomConfig.Id) ?? throw new NullReferenceException("There is no such Room");
+            await this._roomsService.RemoveAsync(this._roomConfig.Id);
+            return deletedRoom;
         }
+        else return null;
     }
 }

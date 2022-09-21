@@ -8,37 +8,28 @@ namespace Study_DOT_NET.Shared.Commands.Messages
 {
     public class ReadMessageCommand: MessageCommand
     {
-        private string userId;
-        public string UserId
-        {
-            get => this.userId;
-            set
-            {
-                if (value.Length == 16)
-                {
-                    this.userId = value;
-                }
-            }
-        }
-
-        public ReadMessageCommand(Message message, MessageConfig data, MessagesService messagesService, string userId)
+        public ReadMessageCommand(Message message, MessageConfig data, MessagesService messagesService)
             : base(message, data, messagesService)
         {
-            this.userId = userId;
+
         }
 
-        public override async Task Execute()
+        public override async Task<Message?> Execute()
         {
-            if (this.prototype is Message message && message.CreatorId != this.userId)
+            if (this.prototype is Message message && this._messageConfig.UserId != null)
             {
-                message.Id = this._messageConfig.Id;
-                message.CreatorId = this._messageConfig.CreatorId;
-                message.MessageContent = this._messageConfig.MessageContent;
-                message.IsForwardedMessage = this._messageConfig.IsForwarded;
+                message = await this._messagesService.GetAsync(this._messageConfig.Id) ?? 
+                          throw new NullReferenceException("There is no such message");
 
-                message.ReadBy?.Add(this.userId);
-                await this._messagesService.UpdateAsync(message.Id, message);
+                if (message.CreatorId != this._messageConfig.UserId && !message.ReadBy.Contains(this._messageConfig.UserId))
+                {
+                    message.ReadBy.Add(this._messageConfig.UserId);
+                    await this._messagesService.UpdateAsync(message.Id, message);
+                    return message;
+                }
+                return null;
             }
+            else return null;
         }
     }
 }

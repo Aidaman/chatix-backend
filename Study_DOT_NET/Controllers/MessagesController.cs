@@ -11,10 +11,12 @@ namespace Study_DOT_NET.Controllers
     public class MessagesController : ControllerBase
     {
         private readonly MessagesService _messagesService;
+        private readonly UsersService _usersService;
 
-        public MessagesController(MessagesService messagesService)
+        public MessagesController(MessagesService messagesService, UsersService usersService)
         {
-            _messagesService = messagesService;
+            this._messagesService = messagesService;
+            this._usersService = usersService;
         }
 
         [HttpGet]
@@ -41,10 +43,25 @@ namespace Study_DOT_NET.Controllers
         [HttpGet("RoomContent/{roomId:length(24)}/{offset}/{limit}")]
         public async Task<List<Message>?> Get(string roomId, int offset, int limit)
         {
-            Console.WriteLine($"All is ok. roomId: {roomId}, offset: {offset}, limit: {limit}");
             List<Message>? messages = await this._messagesService.GetRoomContentAsync(roomId, 0, 50);
+            List<User?> users = new List<User?>();
 
-            if (messages is null)
+            foreach (Message message in messages)
+            {
+                User? creator = users.FirstOrDefault(user => user._Id == message.CreatorId, null);
+                if (creator != null) 
+                {
+                    message.Creator = users.Find((user) => user._Id == message.CreatorId);
+                }
+                else
+                {
+                    User? user = await _usersService.GetAsync(message.CreatorId);
+                    users.Add(user);
+                    message.Creator = user;
+                }
+            }
+
+            if (messages == null)
             {
                 return null;
             }
@@ -52,9 +69,14 @@ namespace Study_DOT_NET.Controllers
             return messages;
         }
 
-        [HttpGet("GetAmountOfMessages/{roomId}")]
+        [HttpGet("RoomAmountOfMessage/{roomId}")]
         public async Task<int> GetAmountOfMessages(string roomId)
         {
+            if (roomId.ToLower() == "common")
+            {
+                return 0;
+            }
+
             List<Message> result = await this._messagesService.getAllMessagesFromRoom(roomId);
 
             if (result == null)

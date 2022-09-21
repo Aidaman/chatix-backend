@@ -1,39 +1,47 @@
 using Study_DOT_NET.Shared.Models;
 using Study_DOT_NET.Shared.Services;
+using System.Net.WebSockets;
+using Study_DOT_NET.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder => builder
+        .WithOrigins("http://localhost:4200")
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials());
+});
+
+builder.Services.AddSignalR();
+
 builder.Services.Configure<ChatDatabaseSettings>(
     builder.Configuration.GetSection("ChatDatabase"));
+
 builder.Services.AddSingleton<MessagesService>();
 builder.Services.AddSingleton<RoomsService>();
 builder.Services.AddSingleton<UsersService>();
 builder.Services.AddSingleton<PrototypeRegistryService>();
-builder.Services.AddSingleton<SocketService>();
 
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
 
 WebApplication app = builder.Build();
 
-WebSocketOptions webSocketOptions = new WebSocketOptions
-{
-    KeepAliveInterval = TimeSpan.FromMinutes(2),
-};
-
 app.UseHttpsRedirection();
-app.UseWebSockets(webSocketOptions);
+app.UseCors("CorsPolicy");
 app.UseAuthorization();
 app.MapControllers();
+
+/* *---* Map Hubs *---* */
+app.MapHub<MessagesHub>("/message");
+app.MapHub<RoomHub>("/room");
+app.MapHub<UserHub>("/user");
+
 app.Run();
 
 /*
  * So i will write my ideas here:
- *
- * I would want to use Prototype design Pattern instead of Fabric. Prototype allow me to quickly configure a lot of objects,
- *  just by the copying one of them, instead of creating NEW one every single time it is needed
- *
  *
  * For encryption: I do not know for now how to implement this, i need to google it more
  *  still, i am completely sure that i will encrypt and decrypt messages in the client app, not on the backend
@@ -61,7 +69,6 @@ app.Run();
  *      Strategy?
  *
  *      Also i would want to use Facade here, for, as an example, even more simplify and wrap Commands for Sockets
- *
  *
  * If OAuth (authorization using Google/Github) is not a good solution for crypto-chat, then what would be better?
  * Registration and login using phone, or email?
