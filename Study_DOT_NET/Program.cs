@@ -2,6 +2,12 @@ using Study_DOT_NET.Shared.Models;
 using Study_DOT_NET.Shared.Services;
 using System.Net.WebSockets;
 using Study_DOT_NET.Hubs;
+using Study_DOT_NET.Shared.Builders;
+using Microsoft.AspNetCore.Cors;
+
+/*
+ * TODO: Save chunks of messages
+ */
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +16,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("CorsPolicy", builder => builder
         .WithOrigins("http://localhost:4200")
         .AllowAnyMethod()
+        // .AllowAnyOrigin()
         .AllowAnyHeader()
         .AllowCredentials());
 });

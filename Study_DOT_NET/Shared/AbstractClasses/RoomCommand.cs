@@ -11,12 +11,6 @@ public abstract class RoomCommand: Command
     public RoomConfig _roomConfig;
     protected RoomCommand(Room room, RoomConfig data, RoomsService roomsService) : base(room)
     {
-        ((this.prototype as Room)!).Id = data.Id;
-        ((this.prototype as Room)!).CreatorId = data.CreatorId;
-        ((this.prototype as Room)!).LastAction = data.LastAction;
-        ((this.prototype as Room)!).ParticipantsIds = data.Participants;
-        ((this.prototype as Room)!).Title = data.Title;
-
         _roomsService = roomsService;
         _roomConfig = data;
     }

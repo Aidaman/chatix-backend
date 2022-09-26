@@ -12,9 +12,6 @@ public abstract class UsersCommand: Command
 
     protected UsersCommand(User user, UserConfig data, UsersService usersService) : base(user)
     {
-        ((this.prototype as User)!).Id = data.Id;
-        ((this.prototype as User)!).FullName = data.Name;
-
         _usersService = usersService;
         _userConfig = data;
     }

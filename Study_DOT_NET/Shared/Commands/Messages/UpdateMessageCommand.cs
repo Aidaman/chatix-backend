@@ -15,7 +15,7 @@ public class UpdateMessageCommand : MessageCommand
 
     public override async Task<Message?> Execute()
     {
-        if (this.prototype is Message message)
+        if (this.prototype.Clone() is Message message)
         {
             message = await this._messagesService.GetAsync(this._messageConfig.Id) ??
                       throw new NullReferenceException("Such message does not exist in the DB");

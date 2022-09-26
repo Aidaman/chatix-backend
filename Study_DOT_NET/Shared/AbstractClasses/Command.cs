@@ -1,4 +1,5 @@
-﻿using Study_DOT_NET.Shared.Interfaces;
+﻿using Study_DOT_NET.Models;
+using Study_DOT_NET.Shared.Interfaces;
 
 namespace Study_DOT_NET.Shared.Abstract;
 

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="6.0.9" />
     <PackageReference Include="MongoDB.Driver" Version="2.17.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />

@@ -23,8 +23,8 @@ namespace Study_DOT_NET.Hubs
         public RoomHub(PrototypeRegistryService prototypeRegistryService, RoomsService roomsService,
             UsersService usersService, MessagesService messagesService)
         {
-            Room? room = prototypeRegistryService.GetPrototypeById("room") as Room;
-            Message? message = prototypeRegistryService.GetPrototypeById("message") as Message;
+            Room? room = prototypeRegistryService.GetPrototypeById("room").Clone() as Room;
+            Message? message = prototypeRegistryService.GetPrototypeById("message").Clone() as Message;
             
             this._usersService = usersService;
             this._roomsService = roomsService;
@@ -136,9 +136,16 @@ namespace Study_DOT_NET.Hubs
             }
         }
 
+        public async Task AddParticipant(List<string> room)
+        {
+            RoomConfig roomConfig = this.GenerateRoomConfig(room);
+            roomConfig.IsAddUser = true;
+            await this.UpdateRoom(roomConfig, $"This room is now {(roomConfig.IsPublic ? "public" : "private")}", "privacyChanged");
+        }
         public async Task PrivacyChange(List<string> room)
         {
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
+            roomConfig.IsAddUser = false;
             await this.UpdateRoom(roomConfig, $"This room is now {(roomConfig.IsPublic ? "public" : "private")}", "privacyChanged");
         }
         public async Task RenameRoom(List<string> room)
@@ -163,10 +170,11 @@ namespace Study_DOT_NET.Hubs
             try
             {
                 RoomConfig roomConfig = this.GenerateRoomConfig(room);
+                this._searchRoomCommand._roomConfig = roomConfig;
 
                 List<Room>? searchedRooms = await this._searchRoomCommand.Execute();
 
-                await Clients.All.SendAsync("newRoom", JsonSerializer.Serialize<List<Room>>(searchedRooms
+                await Clients.All.SendAsync("searchRoomResult", JsonSerializer.Serialize<List<Room>>(searchedRooms
                     ?? throw new ApplicationException("room prototype, occasionally, is not the message object")));
             }
             catch (Exception ex)
@@ -174,22 +182,6 @@ namespace Study_DOT_NET.Hubs
                 Console.WriteLine(ex);
                 throw;
             }
-        }
-
-        public async Task RoomInvitation(List<string> participant)
-        {
-            string newParticipant = JsonSerializer.Deserialize<string>(participant[0]) 
-                                    ?? throw new NullReferenceException("participant parameter is null");
-
-            
-        }
-
-        public async Task InvitationAccepted(List<string> participant)
-        {
-            string newParticipant = JsonSerializer.Deserialize<string>(participant[0]) 
-                                    ?? throw new NullReferenceException("participant parameter is null");
-
-            
         }
     }
 }

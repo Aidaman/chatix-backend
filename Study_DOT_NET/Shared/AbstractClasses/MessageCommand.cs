@@ -12,11 +12,6 @@ public abstract class MessageCommand: Command
 
     protected MessageCommand(Message message, MessageConfig data, MessagesService messagesService) : base(message)
     {
-        (this.prototype as Message)!.Id = data.Id;
-        (this.prototype as Message)!.MessageContent = data.MessageContent;
-        (this.prototype as Message)!.CreatorId = data.UserId;
-        (this.prototype as Message)!.IsForwardedMessage = data.IsForwarded;
-
         if (data.UserId == "system" || data.UserId == String.Empty)
         {
             ((this.prototype as Message)!).IsSystemMessage = true;

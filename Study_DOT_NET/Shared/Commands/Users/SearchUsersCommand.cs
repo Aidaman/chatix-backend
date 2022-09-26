@@ -14,14 +14,15 @@ public class SearchUsersCommand : UsersCommand
 
     }
 
-    public override async Task Execute()
+    public override async Task<List<User>?> Execute()
     {
-        if (this.prototype is User user)
+        if (this.prototype.Clone() is User user)
         {
             user.Id = this._userConfig.Id;
             user.FullName = this._userConfig.Name;
 
-            await this._usersService.SearchAsync(user.FullName);
+            return await this._usersService.SearchAsync(user.FullName);
         }
+        else return null;
     }
 }

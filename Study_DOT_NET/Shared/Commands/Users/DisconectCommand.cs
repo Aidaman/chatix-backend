@@ -14,16 +14,16 @@ public class DisconectCommand : UsersCommand
 
     }
 
-    public override Task Execute()
+    public override async Task<User?> Execute()
     {
-        throw new NotImplementedException();
-
-        if (this.prototype is User user)
+        if (this.prototype.Clone() is User user)
         {
-            user.Id = this._userConfig.Id;
-            user.FullName = this._userConfig.Name;
-            
+            user = await this._usersService.GetAsync(this._userConfig.Id) ?? throw new NullReferenceException("There is no such User");
+            user.IsOnline = false;
+            await this._usersService.UpdateAsync(user.Id, user);
 
+            return user;
         }
+        else return null;
     }
 }

@@ -12,11 +12,13 @@ namespace Study_DOT_NET.Controllers
     {
         private readonly MessagesService _messagesService;
         private readonly UsersService _usersService;
+        private readonly RoomsService _roomsService;
 
-        public MessagesController(MessagesService messagesService, UsersService usersService)
+        public MessagesController(MessagesService messagesService, UsersService usersService, RoomsService roomsService)
         {
             this._messagesService = messagesService;
             this._usersService = usersService;
+            this._roomsService = roomsService;
         }
 
         [HttpGet]
@@ -43,29 +45,35 @@ namespace Study_DOT_NET.Controllers
         [HttpGet("RoomContent/{roomId:length(24)}/{offset}/{limit}")]
         public async Task<List<Message>?> Get(string roomId, int offset, int limit)
         {
-            List<Message>? messages = await this._messagesService.GetRoomContentAsync(roomId, 0, 50);
-            List<User?> users = new List<User?>();
-
-            foreach (Message message in messages)
-            {
-                User? creator = users.FirstOrDefault(user => user._Id == message.CreatorId, null);
-                if (creator != null) 
-                {
-                    message.Creator = users.Find((user) => user._Id == message.CreatorId);
-                }
-                else
-                {
-                    User? user = await _usersService.GetAsync(message.CreatorId);
-                    users.Add(user);
-                    message.Creator = user;
-                }
-            }
+            List<Message>? messages = await this._messagesService.GetRoomContentAsync(roomId, offset, limit);
 
             if (messages == null)
             {
                 return null;
             }
+            
+            foreach (Message message in messages)
+            {
+                /*
+                 if there is no such user in the List above then
+                 -> it search a user
+                 -> adds to list
+                 Why? Because making queries for EACH message, to get same users - are irrational
+                */
+                User? creator = this._roomsService.Participants.FirstOrDefault(user => user._Id == message.CreatorId, null);
+                if (creator != null) 
+                {
+                    message.Creator = creator;
+                }
+                else
+                {
+                    User? user = await _usersService.GetAsync(message.CreatorId);
+                    this._roomsService.Participants.Add(user);
+                    message.Creator = user;
+                }
+            }
 
+            messages.Reverse();
             return messages;
         }
 

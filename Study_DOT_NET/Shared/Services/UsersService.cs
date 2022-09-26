@@ -11,11 +11,7 @@ public class UsersService
     //TODO: Authentication
 
     private readonly IMongoCollection<User> _usersCollection;
-
-    public UsersService()
-    {
-
-    }
+    
     public UsersService(IOptions<ChatDatabaseSettings> chatDatabaseSettings)
     {
         MongoClient mongoClient = new MongoClient(chatDatabaseSettings.Value.ConnectionString);
@@ -37,6 +33,16 @@ public class UsersService
 
     public async Task RemoveAsync(string id) =>
         await this._usersCollection.DeleteOneAsync((User x) => x._Id == id);
-    public async Task<List<User>> SearchAsync(string name) =>
-        await this._usersCollection.Find((User x) => x.FullName.Contains(name)).ToListAsync();
+
+    public async Task<List<User>> SearchAsync(string name)
+    {
+        if (name != "*")
+        {
+            return await this._usersCollection.Find((User x) => x.FullName.ToLower().Contains(name.ToLower())).ToListAsync();
+        }
+        else
+        {
+            return await this.GetAsync();
+        }
+    }
 }

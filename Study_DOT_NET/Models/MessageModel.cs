@@ -63,6 +63,6 @@ public class Message : IPrototype
 
     public override string ToString()
     {
-        return $"\n>{this.CreatorId} ({this.Creator.FullName}), {this.CreatedAt}<\n-->{this.MessageContent}\n {(this.IsForwardedMessage? "Forwarded, " : "")}{(this.IsSystemMessage ? "System, " : "")}from {this.RoomId}\n";
+        return $"\n>{this.CreatorId} ({this.Creator!.FullName}), {this.CreatedAt}<\n-->{this.MessageContent}\n {(this.IsForwardedMessage? "Forwarded, " : "")}{(this.IsSystemMessage ? "System, " : "")}from {this.RoomId}\n";
     }
 }

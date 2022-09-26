@@ -20,6 +20,8 @@ namespace Study_DOT_NET.Shared.ConfigClasses
 
         [JsonPropertyName("isPublic")]
         public bool IsPublic { get; set; }
+        [JsonIgnore]
+        public bool IsAddUser { get; set; }
 
         public override string ToString()
         {

@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\projects\\bench\\chatix-backend\\Study_DOT_NET\\Study_DOT_NET.csproj": {}
+    "C:\\Users\\User\\source\\repos\\Study_DOT_NET\\Study_DOT_NET\\Study_DOT_NET.csproj": {}
   },
   "projects": {
-    "C:\\projects\\bench\\chatix-backend\\Study_DOT_NET\\Study_DOT_NET.csproj": {
+    "C:\\Users\\User\\source\\repos\\Study_DOT_NET\\Study_DOT_NET\\Study_DOT_NET.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\projects\\bench\\chatix-backend\\Study_DOT_NET\\Study_DOT_NET.csproj",
+        "projectUniqueName": "C:\\Users\\User\\source\\repos\\Study_DOT_NET\\Study_DOT_NET\\Study_DOT_NET.csproj",
         "projectName": "Study_DOT_NET",
-        "projectPath": "C:\\projects\\bench\\chatix-backend\\Study_DOT_NET\\Study_DOT_NET.csproj",
-        "packagesPath": "C:\\Users\\dev\\.nuget\\packages\\",
-        "outputPath": "C:\\projects\\bench\\chatix-backend\\Study_DOT_NET\\obj\\",
+        "projectPath": "C:\\Users\\User\\source\\repos\\Study_DOT_NET\\Study_DOT_NET\\Study_DOT_NET.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\User\\source\\repos\\Study_DOT_NET\\Study_DOT_NET\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\dev\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -43,6 +48,10 @@
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[6.0.9, )"
+            },
+            "Microsoft.AspNetCore.Cors": {
+              "target": "Package",
+              "version": "[2.2.0, )"
             },
             "Microsoft.AspNetCore.SignalR.Common": {
               "target": "Package",

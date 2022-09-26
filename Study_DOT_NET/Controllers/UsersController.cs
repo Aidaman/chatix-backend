@@ -35,6 +35,19 @@ namespace Study_DOT_NET.Controllers
 
             return user;
         }
+        
+        [HttpGet("Search/{name}")]
+        public async Task<ActionResult<List<User>>> SearchUsers(string name)
+        {
+            List<User> users = await this._usersService.SearchAsync(name);
+
+            if (users.Count is 0)
+            {
+                return NotFound();
+            }
+
+            return users;
+        }
 
         [HttpPost]
         public async Task<IActionResult> Post(User newUser)

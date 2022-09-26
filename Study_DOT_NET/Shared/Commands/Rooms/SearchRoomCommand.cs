@@ -7,8 +7,6 @@ namespace Study_DOT_NET.Shared.Commands.Rooms;
 
 public class SearchRoomCommand : RoomCommand
 {
-    private readonly RoomsService _roomsService;
-
     public SearchRoomCommand(Room room, RoomConfig data, RoomsService roomsService)
         : base(room, data, roomsService)
     {
@@ -17,9 +15,9 @@ public class SearchRoomCommand : RoomCommand
 
     public override async Task<List<Room>?> Execute()
     {
-        if (this.prototype is Room room)
+        if (this.prototype.Clone() is Room room)
         {
-            return await this._roomsService.SearchAsync(this._roomConfig.Title);
+            return await this._roomsService.SearchAsync(this._roomConfig.Title, true);
         }
         else return null;
     }

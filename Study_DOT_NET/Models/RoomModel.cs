@@ -27,9 +27,8 @@ public class Room: IPrototype
     public string CreatorId { get; set; } = null!;
 
     [BsonIgnore]
-    [BsonRepresentation(BsonType.ObjectId)]
     [JsonPropertyName("creator")]
-    public User Creator { get; set; } = null!;
+    public User? Creator { get; set; } = null!;
 
     [BsonElement("users")]
     [BsonRepresentation(BsonType.ObjectId)]

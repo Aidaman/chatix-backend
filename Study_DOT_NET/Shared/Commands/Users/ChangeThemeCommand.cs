@@ -15,7 +15,7 @@ public class ChangeThemeCommand: UsersCommand
 
     public override async Task Execute()
     {
-        if (this.prototype is User user)
+        if (this.prototype.Clone() is User user)
         {
             user.Id = this._userConfig.Id;
             user.FullName = this._userConfig.Name;

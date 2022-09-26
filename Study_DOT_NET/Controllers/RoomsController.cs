@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Study_DOT_NET.Models;
+using Study_DOT_NET.Shared.Builders;
 using Study_DOT_NET.Shared.Models;
 using Study_DOT_NET.Shared.Services;
 
@@ -12,10 +13,14 @@ namespace Study_DOT_NET.Controllers
     public class RoomsController : ControllerBase
     {
         private readonly RoomsService _roomsService;
+        private readonly UsersService _usersService;
+        private readonly MessagesService _messagesService;
 
-        public RoomsController(RoomsService roomsService)
+        public RoomsController(RoomsService roomsService, UsersService usersService, MessagesService messagesService)
         {
-            _roomsService = roomsService;
+            this._roomsService = roomsService;
+            this._usersService = usersService;
+            this._messagesService = messagesService;
         }
 
         [HttpGet]
@@ -37,6 +42,48 @@ namespace Study_DOT_NET.Controllers
             return room;
         }
 
+        [HttpGet("availableFor/{userId:length(24)}")]
+        public async Task<List<Room>> GetAvailable(string userId)
+        {
+            List<Room> rooms = await this._roomsService.GetAvailableRoomsAsync(userId);
+            rooms.Add(new()
+            {
+                Id = "common",
+                Title = "Common",
+                Participants = await this._usersService.GetAsync(),
+                IsPublic = true,
+            });
+
+            for (int i = 0; i < rooms.Count; i++)
+            {
+                if (rooms[i].Id != "common")
+                {
+                    RoomBuilder builder = new RoomBuilder(rooms[i], this._roomsService, this._usersService,
+                        this._messagesService);
+
+                    await builder.ConfigureCreator();
+                    await builder.ConfigureParticipants();
+                    await builder.ConfigureUnread(userId);
+                    rooms[i] = builder.Build() as Room ?? throw new ApplicationException("Builder didn't built the room properly");
+                }
+            }
+            
+            return rooms;
+        }
+        
+        [HttpGet("Search/{title}/{isPublic}")]
+        public async Task<ActionResult<List<Room>>> Search(string title, bool isPublic)
+        {
+            List<Room> rooms = await this._roomsService.SearchAsync(title, isPublic);
+            
+            if (rooms is null)
+            {
+                return NotFound();
+            }
+
+            return rooms;
+        }
+        
         [HttpPost]
         public async Task<IActionResult> Post(Room newRoom)
         {

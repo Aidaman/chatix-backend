@@ -16,7 +16,7 @@ public class DeleteRoomCommand : RoomCommand
 
     public override async Task<Room?> Execute()
     {
-        if (this.prototype is Room room)
+        if (this.prototype.Clone() is Room room)
         {
             Room deletedRoom = await this._roomsService.GetAsync(this._roomConfig.Id) ?? throw new NullReferenceException("There is no such Room");
             await this._roomsService.RemoveAsync(this._roomConfig.Id);

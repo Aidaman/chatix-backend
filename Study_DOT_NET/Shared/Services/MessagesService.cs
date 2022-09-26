@@ -25,10 +25,11 @@ public class MessagesService
     public async Task<List<Message>?> GetRoomContentAsync(string roomId, int offset, int limit)  => 
         await this._messagesCollection
             .Find((Message x) => x.RoomId == roomId)
-            .SortBy((Message message) => message.CreatedAt)
+            .SortByDescending((Message message) => message.CreatedAt)
             .Skip(offset)
             .Limit(limit)
             .ToListAsync();
+
     public async Task<List<Message>?> getAllMessagesFromRoom(string roomId) =>
         await this._messagesCollection
             .Find((Message x) => x.RoomId == roomId)

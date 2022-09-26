@@ -6,7 +6,7 @@ namespace Study_DOT_NET.Shared.ConfigClasses
     {
         [JsonPropertyName("messageId")]
         public string Id { get; set; } = String.Empty;
-        [JsonPropertyName("newContent")]
+        [JsonPropertyName("content")]
         public string MessageContent { get; set; } = String.Empty;
         /*
          *  >User Id description<
@@ -18,7 +18,7 @@ namespace Study_DOT_NET.Shared.ConfigClasses
         public string? UserId { get; set; } = String.Empty;
         [JsonPropertyName("roomId")]
         public string RoomId { get; set; } = String.Empty;
-        [JsonPropertyName("IsForwarded")]
+        [JsonPropertyName("isForwarded")]
         public bool IsForwarded { get; set; } = false;
         [JsonPropertyName("IsSystem")]
         public bool IsSystem { get; set; } = false;

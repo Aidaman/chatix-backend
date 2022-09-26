@@ -16,7 +16,7 @@ public class UpdateRoomCommand : RoomCommand
 
     public override async Task<Room?> Execute()
     {
-        if (this.prototype is Room room)
+        if (this.prototype.Clone() is Room room)
         {
             room = await this._roomsService.GetAsync(this._roomConfig.Id)
                    ?? throw new NullReferenceException("No such room is present in Database");
@@ -27,18 +27,23 @@ public class UpdateRoomCommand : RoomCommand
             {
                 room.IsPublic = this._roomConfig.IsPublic;
             }
-
-            room.ParticipantsIds = room.ParticipantsIds
-                .Where((string participant) => participant != this._roomConfig.UserId).ToList();
-            foreach (string participant in room.ParticipantsIds)
-            {
-                room.Participants.Add(await this._usersService.GetAsync(participant) ?? throw new NullReferenceException("There is no such User"));
-            }
-
-            // room.Participants = this._roomConfig.Participants;
             if (this._roomConfig.Title != String.Empty)
             {
                 room.Title = this._roomConfig.Title;
+            }
+            if (this._roomConfig.IsAddUser)
+            {
+                room.ParticipantsIds.Add(this._roomConfig.UserId);
+            }
+            else
+            {
+                room.ParticipantsIds = room.ParticipantsIds
+                    .Where((string participant) => participant != this._roomConfig.UserId)
+                    .ToList();
+            }
+            foreach (string participant in room.ParticipantsIds)
+            {
+                room.Participants.Add(await this._usersService.GetAsync(participant) ?? throw new NullReferenceException("There is no such User"));
             }
 
             await this._roomsService.UpdateAsync(room.Id, room);
