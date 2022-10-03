@@ -74,6 +74,20 @@ namespace Study_DOT_NET.Controllers
 
             //NoContent() - creates NoContentResult object that basically returns response to server and signalling that there is empty response body
             return NoContent();
+        }        
+        [HttpPut("ChangeTheme/id;length(24)")]
+        public async Task<IActionResult> Update(string id)
+        {
+            User? user = await this._usersService.GetAsync(id);
+
+            if (user is null)
+            {
+                return NotFound();
+            }
+            user.ColorTheme = user.ColorTheme.ToLower() == "dark" ? "light" : "dark";
+            await this.Update(id, user);
+            
+            return NoContent();
         }
 
         [HttpDelete("id;length(24)")]

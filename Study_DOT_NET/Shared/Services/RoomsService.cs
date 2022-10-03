@@ -13,8 +13,8 @@ namespace Study_DOT_NET.Shared.Services
 
         public RoomsService()
         {
-
         }
+
         public RoomsService(IOptions<ChatDatabaseSettings> chatDatabaseSettings, UsersService usersService)
         {
             MongoClient mongoClient = new MongoClient(chatDatabaseSettings.Value.ConnectionString);
@@ -29,6 +29,11 @@ namespace Study_DOT_NET.Shared.Services
         public async Task<Room?> GetAsync(string id) =>
             await this._roomsCollection.Find((Room x) => x.Id == id).FirstOrDefaultAsync();
 
+        public async Task<List<Room>> GetAvailableRoomsAsync(string userId, bool isPublic) =>
+            await this._roomsCollection
+                .Find((Room x) => x.ParticipantsIds.Contains(userId) && x.IsPublic == isPublic)
+                .ToListAsync();
+        
         public async Task<List<Room>> GetAvailableRoomsAsync(string userId) =>
             await this._roomsCollection
                 .Find((Room x) => x.ParticipantsIds.Contains(userId))
@@ -42,7 +47,10 @@ namespace Study_DOT_NET.Shared.Services
 
         public async Task RemoveAsync(string id) =>
             await this._roomsCollection.DeleteOneAsync((Room x) => x.Id == id);
-        public async Task<List<Room>> SearchAsync(string title, bool isPublic) =>
-            await this._roomsCollection.Find((Room x) => x.Title.Contains(title) && x.IsPublic == isPublic).ToListAsync();
+
+        public async Task<List<Room>> SearchAsync(string title) =>
+            await this._roomsCollection
+                .Find((Room x) => x.Title.ToLower().Contains(title.ToLower()) && x.IsPublic == true)
+                .ToListAsync();   
     }
 }

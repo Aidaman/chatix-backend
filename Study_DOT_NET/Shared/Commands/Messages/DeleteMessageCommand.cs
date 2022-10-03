@@ -7,8 +7,8 @@ namespace Study_DOT_NET.Shared.Commands.Messages
 {
     public class DeleteMessageCommand : MessageCommand
     {
-        public DeleteMessageCommand(Message message, MessageConfig data, MessagesService messagesService)
-            : base(message, data, messagesService)
+        public DeleteMessageCommand(PrototypeRegistryService prototypeRegistryService, MessagesService messagesService)
+            : base(prototypeRegistryService.GetPrototypeById("message") as Message, new MessageConfig(), messagesService)
         {
 
         }

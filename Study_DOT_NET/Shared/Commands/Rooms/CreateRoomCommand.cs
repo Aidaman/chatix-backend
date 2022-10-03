@@ -9,8 +9,8 @@ namespace Study_DOT_NET.Shared.Commands.Rooms;
 public class CreateRoomCommand: RoomCommand
 {
     private readonly UsersService _usersService;
-    public CreateRoomCommand(Room room, RoomConfig data, RoomsService roomsService, UsersService usersService) 
-        : base(room, data, roomsService)
+    public CreateRoomCommand(PrototypeRegistryService prototypeRegistryService, RoomsService roomsService, UsersService usersService) 
+        : base(prototypeRegistryService.GetPrototypeById("room") as Room, new RoomConfig(), roomsService)
     {
         this._usersService = usersService;
     }

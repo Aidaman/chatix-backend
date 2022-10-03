@@ -4,6 +4,8 @@ using System.Net.WebSockets;
 using Study_DOT_NET.Hubs;
 using Study_DOT_NET.Shared.Builders;
 using Microsoft.AspNetCore.Cors;
+using Study_DOT_NET.Shared.Commands.Messages;
+using Study_DOT_NET.Shared.Commands.Rooms;
 
 /*
  * TODO: Save chunks of messages
@@ -13,12 +15,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy", builder => builder
+    options.AddPolicy("CorsPolicy", corsPolicyBuilder => corsPolicyBuilder
         .WithOrigins("http://localhost:4200")
         .AllowAnyMethod()
-        // .AllowAnyOrigin()
         .AllowAnyHeader()
-        .AllowCredentials());
+        .AllowCredentials()
+        // .AllowAnyHeader()
+        // .AllowAnyMethod()
+        // .AllowAnyOrigin()
+    );
 });
 
 builder.Services.AddSignalR();
@@ -30,6 +35,15 @@ builder.Services.AddSingleton<MessagesService>();
 builder.Services.AddSingleton<RoomsService>();
 builder.Services.AddSingleton<UsersService>();
 builder.Services.AddSingleton<PrototypeRegistryService>();
+
+builder.Services.AddSingleton<CreateMessageCommand>();
+builder.Services.AddSingleton<UpdateMessageCommand>();
+builder.Services.AddSingleton<ReadMessageCommand>();
+builder.Services.AddSingleton<DeleteMessageCommand>();
+
+builder.Services.AddSingleton<CreateRoomCommand>();
+builder.Services.AddSingleton<DeleteRoomCommand>();
+builder.Services.AddSingleton<UpdateRoomCommand>();
 
 builder.Services.AddControllers();
 

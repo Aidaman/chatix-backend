@@ -11,8 +11,9 @@ namespace Study_DOT_NET.Shared.Commands.Messages
     {
         private readonly RoomsService _roomsService;
         private readonly UsersService _usersService;
-        public ReadMessageCommand(Message message, MessageConfig data, MessagesService messagesService, RoomsService roomsService, UsersService usersService)
-            : base(message, data, messagesService)
+        public ReadMessageCommand(PrototypeRegistryService prototypeRegistryService, MessagesService messagesService, 
+            UsersService usersService, RoomsService roomsService)
+            : base(prototypeRegistryService.GetPrototypeById("message") as Message, new MessageConfig(), messagesService)
         {
             _roomsService = roomsService;
             _usersService = usersService;
@@ -24,18 +25,7 @@ namespace Study_DOT_NET.Shared.Commands.Messages
             {
                 message = await this._messagesService.GetAsync(this._messageConfig.Id) ?? 
                           throw new NullReferenceException("There is no such message");
-                User? creator = this._roomsService.Participants.FirstOrDefault((user) => user.Id == message.CreatorId, null);
-                if (creator != null)
-                {
-                    message.Creator = creator;
-                }
-                else
-                {
-                    creator = await _usersService.GetAsync(message.CreatorId) ?? throw new NullReferenceException("There is no such User");
-                    this._roomsService.Participants.Add(creator);
-                    message.Creator = creator;
-                }
-
+                message.Creator = await this._usersService.GetAsync(message.CreatorId);
                 if (message.CreatorId != this._messageConfig.UserId && !message.ReadBy.Contains(this._messageConfig.UserId))
                 {
                     message.ReadBy.Add(this._messageConfig.UserId);

@@ -9,9 +9,9 @@ public class CreateMessageCommand : MessageCommand
 {
     private readonly UsersService _usersService;
 
-    public CreateMessageCommand(Message message, MessageConfig data, MessagesService messagesService,
+    public CreateMessageCommand(PrototypeRegistryService prototypeRegistryService, MessagesService messagesService, 
         UsersService usersService)
-        : base(message, data, messagesService)
+        : base(prototypeRegistryService.GetPrototypeById("message") as Message, new MessageConfig(), messagesService)
     {
         this._usersService = usersService;
     }
@@ -21,9 +21,9 @@ public class CreateMessageCommand : MessageCommand
         message.MessageContent = this._messageConfig.MessageContent;
         message.IsSystemMessage = this._messageConfig.IsSystem;
         message.RoomId = this._messageConfig.RoomId;
+        message.CreatorId = this._messageConfig.UserId;
         message.CreatedAt = DateTime.Now;
         message.UpdatedAt = DateTime.Now;
-        message.CreatorId = this._messageConfig.UserId;
     }
 
     public override async Task<Message?> Execute()
@@ -37,12 +37,16 @@ public class CreateMessageCommand : MessageCommand
                 message = await this._messagesService.GetAsync(this._messageConfig.Id) ??
                           throw new NullReferenceException("There is no such message");
 
+                message.RoomId = this._messageConfig.RoomId;
+                message.CreatedAt = DateTime.Now;
+                message.UpdatedAt = DateTime.Now;
+
                 message.IsForwardedMessage = true;
                 message.Id = Guid.NewGuid().ToString("N").Substring(0, 24);
             }
 
-            message.Creator = await this._usersService.GetAsync(message.CreatorId);
             message.ReadBy = new List<string>();
+            message.Creator = await this._usersService.GetAsync(message.CreatorId);
 
             await this._messagesService.CreateAsync(message);
             return message;

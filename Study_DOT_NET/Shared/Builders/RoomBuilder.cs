@@ -12,7 +12,9 @@ namespace Study_DOT_NET.Shared.Builders
         private readonly UsersService _usersService;
         private readonly MessagesService? _messagesService;
         private readonly IPrototype room;
-        public RoomBuilder(Room room, RoomsService roomsService, UsersService usersService, MessagesService? messagesService)
+
+        public RoomBuilder(Room room, RoomsService roomsService, UsersService usersService,
+            MessagesService? messagesService)
         {
             this._roomsService = roomsService;
             this._usersService = usersService;
@@ -20,7 +22,8 @@ namespace Study_DOT_NET.Shared.Builders
             this.room = room.Clone();
         }
 
-        public RoomBuilder ConfigureBasicParameters(string id, string creatorId, string title, DateTime lastAction, bool? isFavorites, bool? isPublic)
+        public RoomBuilder ConfigureBasicParameters(string id, string creatorId, string title, DateTime lastAction,
+            bool? isFavorites, bool? isPublic)
         {
             (this.room as Room)!.Id = id;
             (this.room as Room)!.CreatorId = creatorId;
@@ -30,6 +33,7 @@ namespace Study_DOT_NET.Shared.Builders
             (this.room as Room)!.IsPublic = isPublic ?? false;
             return this;
         }
+
         public RoomBuilder ConfigureBasicParameters(RoomConfig config, bool? isFavorites)
         {
             (this.room as Room)!.Id = config.Id;
@@ -41,21 +45,11 @@ namespace Study_DOT_NET.Shared.Builders
             (this.room as Room)!.ParticipantsIds = config.Participants;
             return this;
         }
+
         public async Task<RoomBuilder> ConfigureCreator()
         {
-            User? creator = this._roomsService.Participants.FirstOrDefault(x => x.Id == (this.room as Room)!.CreatorId, null);
-            if (creator != null)
-            {
-                (this.room as Room)!.Creator = creator;
-            }
-            else
-            {
-                creator = await this._usersService.GetAsync((this.room as Room)!.CreatorId) 
-                          ?? throw new NullReferenceException("There iis no such User");
-                this._roomsService.Participants.Add(creator);
-                (this.room as Room)!.Creator = creator;
-            }
-
+            (this.room as Room).Creator = await this._usersService.GetAsync((this.room as Room)!.CreatorId)
+                                          ?? throw new NullReferenceException("There iis no such User");
             return this;
         }
 
@@ -65,18 +59,8 @@ namespace Study_DOT_NET.Shared.Builders
 
             foreach (string id in (this.room as Room)!.ParticipantsIds)
             {
-                User? participant = this._roomsService.Participants.FirstOrDefault(x => x.Id == id, null);
-                if (participant != null)
-                {
-                    (this.room as Room)!.Participants.Add(participant);
-                }
-                else
-                {
-                    participant = await this._usersService.GetAsync(id) 
-                                  ?? throw new NullReferenceException("There is no such User");
-                    this._roomsService.Participants.Add(participant);
-                    (this.room as Room)!.Participants.Add(participant);
-                }
+                (this.room as Room)!.Participants.Add(await this._usersService.GetAsync(id)
+                                                      ?? throw new NullReferenceException("There is no such User"));
             }
 
             return this;
@@ -86,17 +70,23 @@ namespace Study_DOT_NET.Shared.Builders
         {
             if (this._messagesService != null)
             {
-
-                List<Message> messages = await this._messagesService!.GetRoomContentAsync((this.room as Room)!.Id, 0, 100)
-                                         ?? throw new ApplicationException($"Can not get messages for room \"{(this.room as Room)!.Title}\"");
-                (this.room as Room)!.AmountOfUnread = messages.Where(x => !x.ReadBy.Contains(userId) && x.CreatorId != userId).ToList().Count;
+                List<Message> messages =
+                    await this._messagesService!.GetRoomContentAsync((this.room as Room)!.Id, 0, 100)
+                    ?? throw new ApplicationException(
+                        $"Can not get messages for room \"{(this.room as Room)!.Title}\"");
+                (this.room as Room)!.AmountOfUnread = 
+                    messages.Where(x => !x.ReadBy.Contains(userId) 
+                                        && x.CreatorId != userId && 
+                                        !x.IsSystemMessage).ToList().Count;
             }
             else
             {
                 throw new NullReferenceException("Message Service for room builder is null");
             }
+
             return this;
         }
+
         public IPrototype Build()
         {
             return this.room as IPrototype;

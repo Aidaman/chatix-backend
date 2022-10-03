@@ -41,6 +41,11 @@ public class User: IPrototype
     [BsonElement("avatar")]
     [JsonPropertyName("avatar")]
     public string Avatar { get; set; } = null!;
+    
+    [BsonElement("roomIds")]
+    [BsonRepresentation(BsonType.ObjectId)]
+    [JsonIgnore]
+    public List<string> RoomIds { get; set; } = null!;
 
     [BsonElement("__v")]
     [JsonIgnore]

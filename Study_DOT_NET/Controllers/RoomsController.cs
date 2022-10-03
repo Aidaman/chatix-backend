@@ -16,13 +16,45 @@ namespace Study_DOT_NET.Controllers
         private readonly UsersService _usersService;
         private readonly MessagesService _messagesService;
 
+        private readonly Room _commonRoom;
         public RoomsController(RoomsService roomsService, UsersService usersService, MessagesService messagesService)
         {
             this._roomsService = roomsService;
             this._usersService = usersService;
             this._messagesService = messagesService;
+            _commonRoom = new Room()
+            {
+                Id = "common",
+                Title = "Common",
+                Participants = usersService.GetAsync().Result,
+                IsPublic = true,
+            };
         }
 
+        private async Task<List<Room>> BuildRooms(List<Room> rooms, string? userId)
+        {
+            rooms.Add(_commonRoom);
+
+            for (int i = 0; i < rooms.Count; i++)
+            {
+                if (rooms[i].Id != "common")
+                {
+                    RoomBuilder builder = new RoomBuilder(rooms[i], this._roomsService, this._usersService,
+                        this._messagesService);
+
+                    await builder.ConfigureCreator();
+                    await builder.ConfigureParticipants();
+                    if (userId is not null)
+                    {
+                        await builder.ConfigureUnread(userId);   
+                    }
+                    rooms[i] = builder.Build() as Room ?? throw new ApplicationException("Builder didn't built the room properly");
+                }
+            }
+
+            return rooms;
+        }
+        
         [HttpGet]
         public async Task<List<Room>> Get()
         {
@@ -46,35 +78,28 @@ namespace Study_DOT_NET.Controllers
         public async Task<List<Room>> GetAvailable(string userId)
         {
             List<Room> rooms = await this._roomsService.GetAvailableRoomsAsync(userId);
-            rooms.Add(new()
-            {
-                Id = "common",
-                Title = "Common",
-                Participants = await this._usersService.GetAsync(),
-                IsPublic = true,
-            });
-
-            for (int i = 0; i < rooms.Count; i++)
-            {
-                if (rooms[i].Id != "common")
-                {
-                    RoomBuilder builder = new RoomBuilder(rooms[i], this._roomsService, this._usersService,
-                        this._messagesService);
-
-                    await builder.ConfigureCreator();
-                    await builder.ConfigureParticipants();
-                    await builder.ConfigureUnread(userId);
-                    rooms[i] = builder.Build() as Room ?? throw new ApplicationException("Builder didn't built the room properly");
-                }
-            }
-            
+            rooms = await this.BuildRooms(rooms, userId);
             return rooms;
         }
         
-        [HttpGet("Search/{title}/{isPublic}")]
-        public async Task<ActionResult<List<Room>>> Search(string title, bool isPublic)
+        [HttpGet("availableFor/{userId:length(24)}/{isPublic:bool}")]
+        public async Task<List<Room>> GetAvailable(string userId, bool isPublic)
         {
-            List<Room> rooms = await this._roomsService.SearchAsync(title, isPublic);
+            List<Room> rooms = await this._roomsService.GetAvailableRoomsAsync(userId, isPublic);
+            rooms = await this.BuildRooms(rooms, userId);
+            return rooms;
+        }
+        
+        [HttpGet("Search/{title}")]
+        public async Task<ActionResult<List<Room>>> Search(string title)
+        {
+            if (title.ToString() == "undefined")
+            {
+                return BadRequest();
+            }
+            
+            List<Room> rooms = await this._roomsService.SearchAsync(title);
+            rooms = await this.BuildRooms(rooms, null);
             
             if (rooms is null)
             {

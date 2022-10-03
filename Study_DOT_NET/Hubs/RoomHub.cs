@@ -13,29 +13,19 @@ namespace Study_DOT_NET.Hubs
         private readonly CreateRoomCommand _createRoomCommand;
         private readonly UpdateRoomCommand _updateRoomCommand;
         private readonly DeleteRoomCommand _deleteRoomCommand;
-        private readonly SearchRoomCommand _searchRoomCommand;
         private readonly CreateMessageCommand _createMessageCommand;
-
         private readonly UsersService _usersService;
         private readonly RoomsService _roomsService;
-        private readonly MessagesService _messagesService;
-
-        public RoomHub(PrototypeRegistryService prototypeRegistryService, RoomsService roomsService,
-            UsersService usersService, MessagesService messagesService)
+        public RoomHub(CreateRoomCommand createRoomCommand, UpdateRoomCommand updateRoomCommand, 
+                       DeleteRoomCommand deleteRoomCommand, CreateMessageCommand createMessageCommand, 
+                       UsersService usersService, RoomsService roomsService)
         {
-            Room? room = prototypeRegistryService.GetPrototypeById("room").Clone() as Room;
-            Message? message = prototypeRegistryService.GetPrototypeById("message").Clone() as Message;
-            
-            this._usersService = usersService;
-            this._roomsService = roomsService;
-            this._messagesService = messagesService;
-
-            this._createRoomCommand = new CreateRoomCommand(room, new RoomConfig(), roomsService, usersService);
-            this._updateRoomCommand = new UpdateRoomCommand(room, new RoomConfig(), roomsService, usersService);
-            this._deleteRoomCommand = new DeleteRoomCommand(room, new RoomConfig(), roomsService);
-            this._searchRoomCommand = new SearchRoomCommand(room, new RoomConfig(), roomsService);
-            this._createMessageCommand = 
-                new CreateMessageCommand(message, new MessageConfig(), this._messagesService,this._usersService);
+            _createRoomCommand = createRoomCommand;
+            _updateRoomCommand = updateRoomCommand;
+            _deleteRoomCommand = deleteRoomCommand;
+            _createMessageCommand = createMessageCommand;
+            _usersService = usersService;
+            _roomsService = roomsService;
         }
         private RoomConfig GenerateRoomConfig(List<string> room)
         {
@@ -51,8 +41,8 @@ namespace Study_DOT_NET.Hubs
                 this._deleteRoomCommand._roomConfig = roomConfig;
                 Room? deletedRoom = await this._deleteRoomCommand.Execute();
 
-                await Clients.All.SendAsync("roomDeleted", JsonSerializer.Serialize<Room>(deletedRoom
-                    ?? throw new ApplicationException("room prototype, occasionally, is not the message object")));
+                await Clients.All.SendAsync("roomDeleted", deletedRoom
+                    ?? throw new ApplicationException("room prototype, occasionally, is not the message object"));
             }
             catch (Exception ex)
             {
@@ -64,8 +54,7 @@ namespace Study_DOT_NET.Hubs
         private async Task UpdateRoom(RoomConfig roomConfig, string message, string eventMessage)
         {
             try
-            {
-                Console.WriteLine(roomConfig);
+            {   
                 this._updateRoomCommand._roomConfig = roomConfig;
                 MessageConfig messageConfig = new MessageConfig()
                 {
@@ -81,11 +70,13 @@ namespace Study_DOT_NET.Hubs
                 Room? updatedRoom = await this._updateRoomCommand.Execute();
                 Message? createdMessage = await this._createMessageCommand.Execute();
 
-                await Clients.All.SendAsync(eventMessage, JsonSerializer.Serialize<Room>(updatedRoom
-                    ?? throw new ApplicationException("room prototype, occasionally, is not the room object")));
+                Console.WriteLine(updatedRoom);
+                
+                await Clients.All.SendAsync(eventMessage, updatedRoom
+                    ?? throw new ApplicationException("room prototype, occasionally, is not the room object"));
 
-                await Clients.All.SendAsync("newMessage", JsonSerializer.Serialize<Message>(createdMessage
-                    ?? throw new ApplicationException("message prototype, occasionally, is not the message object")));
+                await Clients.All.SendAsync("newMessage", createdMessage
+                    ?? throw new ApplicationException("message prototype, occasionally, is not the message object"));
 
                 Console.WriteLine($"room's amount of participants are: {updatedRoom.Participants.Count}");
                 if (updatedRoom.ParticipantsIds.Count < 2)
@@ -123,11 +114,11 @@ namespace Study_DOT_NET.Hubs
                 Room? createdRoom = await this._createRoomCommand.Execute();
                 Message? createdMessage = await this._createMessageCommand.Execute();
 
-                await Clients.All.SendAsync("newRoom", JsonSerializer.Serialize<Room>(createdRoom
-                    ?? throw new ApplicationException("room prototype, occasionally, is not the room object")));
-
-                await Clients.All.SendAsync("newMessage", JsonSerializer.Serialize<Message>(createdMessage 
-                    ?? throw new ApplicationException("room prototype, occasionally, is not the message object")));
+                await Clients.All.SendAsync("newRoom", createdRoom
+                    ?? throw new ApplicationException("room prototype, occasionally, is not the room object"));
+                
+                await Clients.All.SendAsync("newMessage", createdMessage 
+                    ?? throw new ApplicationException("room prototype, occasionally, is not the message object"));
             }
             catch (Exception ex)
             {
@@ -140,22 +131,30 @@ namespace Study_DOT_NET.Hubs
         {
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
             roomConfig.IsAddUser = true;
-            await this.UpdateRoom(roomConfig, $"This room is now {(roomConfig.IsPublic ? "public" : "private")}", "privacyChanged");
+            string message =
+                $"{(await this._usersService.GetAsync(roomConfig.UserId))?.FullName} has joined the {(await this._roomsService.GetAsync(roomConfig.Id))?.Title}";
+            await this.UpdateRoom(roomConfig, message, "userJoin");
         }
         public async Task PrivacyChange(List<string> room)
         {
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
             roomConfig.IsAddUser = false;
-            await this.UpdateRoom(roomConfig, $"This room is now {(roomConfig.IsPublic ? "public" : "private")}", "privacyChanged");
+            if (roomConfig.IsPublic != null)
+            {
+                await this.UpdateRoom(roomConfig, $"This room is now {((bool)roomConfig.IsPublic ? "public" : "private")}", "privacyChanged");   
+            }
         }
         public async Task RenameRoom(List<string> room)
         {
+            Console.WriteLine(room[0]);
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
+            roomConfig.IsAddUser = false;
             await this.UpdateRoom(roomConfig, $"Room has been renamed to: {roomConfig.Title}", "roomRename");
         }
         public async Task DeleteParticipant(List<string> room)
         {
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
+            roomConfig.IsAddUser = false;
             await this.UpdateRoom(roomConfig, $"{(await this._usersService.GetAsync(roomConfig.UserId)).FullName} left the room 😢", "userLeft");
         }
 
@@ -163,25 +162,6 @@ namespace Study_DOT_NET.Hubs
         {
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
             await this.RoomDeleteOne(roomConfig);
-        }
-
-        public async Task SearchRoom(List<string> room)
-        {
-            try
-            {
-                RoomConfig roomConfig = this.GenerateRoomConfig(room);
-                this._searchRoomCommand._roomConfig = roomConfig;
-
-                List<Room>? searchedRooms = await this._searchRoomCommand.Execute();
-
-                await Clients.All.SendAsync("searchRoomResult", JsonSerializer.Serialize<List<Room>>(searchedRooms
-                    ?? throw new ApplicationException("room prototype, occasionally, is not the message object")));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
         }
     }
 }

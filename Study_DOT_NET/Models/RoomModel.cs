@@ -45,7 +45,7 @@ public class Room: IPrototype
 
     [BsonElement("isPublic")]
     [JsonPropertyName("isPublic")]
-    public bool IsPublic { get; set; } = false;
+    public bool? IsPublic { get; set; } = null;
 
     [BsonElement("unread")]
     [JsonPropertyName("unread")]

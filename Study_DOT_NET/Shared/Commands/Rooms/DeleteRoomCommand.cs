@@ -8,8 +8,8 @@ namespace Study_DOT_NET.Shared.Commands.Rooms;
 
 public class DeleteRoomCommand : RoomCommand
 {
-    public DeleteRoomCommand(Room room, RoomConfig data, RoomsService roomsService)
-        : base(room, data, roomsService)
+    public DeleteRoomCommand(PrototypeRegistryService prototypeRegistryService, RoomsService roomsService) 
+        : base(prototypeRegistryService.GetPrototypeById("room") as Room, new RoomConfig(), roomsService)
     {
 
     }
