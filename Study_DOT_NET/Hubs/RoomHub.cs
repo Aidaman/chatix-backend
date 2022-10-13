@@ -27,6 +27,12 @@ namespace Study_DOT_NET.Hubs
             _usersService = usersService;
             _roomsService = roomsService;
         }
+        /// <summary>
+        /// This method generates new RoomConfig instance from json 
+        /// </summary>
+        /// <param name="room">JSON representation of the room content that front-end gives here</param>
+        /// <returns>new RoomConfig instance</returns>
+        /// <exception cref="NullReferenceException">If instead of JSON null was given; or if deserialization was unsuccessful</exception>
         private RoomConfig GenerateRoomConfig(List<string> room)
         {
             return JsonSerializer.Deserialize<RoomConfig>(room[0]
@@ -34,6 +40,12 @@ namespace Study_DOT_NET.Hubs
                    ?? throw new NullReferenceException("unsuccessful deserialization result is null");
         }
 
+        /// <summary>
+        /// Method that deletes room
+        /// Calls DeleteRoomCommand class
+        /// </summary>
+        /// <param name="roomConfig">Data about the room that should be deleted for DeleteRoomCommand class</param>
+        /// <exception cref="ApplicationException"></exception>
         private async Task RoomDeleteOne(RoomConfig roomConfig)
         {
             try
@@ -50,7 +62,15 @@ namespace Study_DOT_NET.Hubs
                 throw;
             }
         }
-
+        /// <summary>
+        /// Method that Updates room
+        /// Calls UpdateRoomCommand class
+        /// Calls CreateMessageCommand class
+        /// </summary>
+        /// <param name="roomConfig">Data given by front-end about the room being updated</param>
+        /// <param name="message">text of the message that generates for users to notice them, that room was updated</param>
+        /// <param name="eventMessage">name of the event that should be called in the frontend</param>
+        /// <exception cref="ApplicationException">If something went wrong while executing commands this exception thrown</exception>
         private async Task UpdateRoom(RoomConfig roomConfig, string message, string eventMessage)
         {
             try
@@ -78,7 +98,7 @@ namespace Study_DOT_NET.Hubs
                 await Clients.All.SendAsync("newMessage", createdMessage
                     ?? throw new ApplicationException("message prototype, occasionally, is not the message object"));
 
-                Console.WriteLine($"room's amount of participants are: {updatedRoom.Participants.Count}");
+                // Console.WriteLine($"room's amount of participants are: {updatedRoom.Participants.Count}");
                 if (updatedRoom.ParticipantsIds.Count < 2)
                 {
                     await this.RoomDeleteOne(roomConfig);
@@ -91,6 +111,13 @@ namespace Study_DOT_NET.Hubs
             }
         }
 
+        /// <summary>
+        /// Method that creates new Room 
+        /// Calls CreateRoomCommand class
+        /// Calls CreateMessageCommand class
+        /// </summary>
+        /// <param name="room">JSON representation of RoomConfig class</param>
+        /// <exception cref="ApplicationException">If something went wrong while executing commands this exception thrown</exception>
         public async Task CreateRoom(List<string> room)
         {
             try
@@ -127,6 +154,10 @@ namespace Study_DOT_NET.Hubs
             }
         }
 
+        /// <summary>
+        /// A method that calls by front-end for updating a room
+        /// </summary>
+        /// <param name="room">JSON representation of RoomConfig class</param>
         public async Task AddParticipant(List<string> room)
         {
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
@@ -135,6 +166,10 @@ namespace Study_DOT_NET.Hubs
                 $"{(await this._usersService.GetAsync(roomConfig.UserId))?.FullName} has joined the {(await this._roomsService.GetAsync(roomConfig.Id))?.Title}";
             await this.UpdateRoom(roomConfig, message, "userJoin");
         }
+        /// <summary>
+        /// A method that calls by front-end for updating a room
+        /// </summary>
+        /// <param name="room">JSON representation of RoomConfig class</param>
         public async Task PrivacyChange(List<string> room)
         {
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
@@ -144,6 +179,10 @@ namespace Study_DOT_NET.Hubs
                 await this.UpdateRoom(roomConfig, $"This room is now {((bool)roomConfig.IsPublic ? "public" : "private")}", "privacyChanged");   
             }
         }
+        /// <summary>
+        /// A method that calls by front-end for updating a room
+        /// </summary>
+        /// <param name="room">JSON representation of RoomConfig class</param>
         public async Task RenameRoom(List<string> room)
         {
             Console.WriteLine(room[0]);
@@ -151,6 +190,10 @@ namespace Study_DOT_NET.Hubs
             roomConfig.IsAddUser = false;
             await this.UpdateRoom(roomConfig, $"Room has been renamed to: {roomConfig.Title}", "roomRename");
         }
+        /// <summary>
+        /// A method that calls by front-end for updating a room
+        /// </summary>
+        /// <param name="room">JSON representation of RoomConfig class</param>
         public async Task DeleteParticipant(List<string> room)
         {
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
@@ -158,6 +201,10 @@ namespace Study_DOT_NET.Hubs
             await this.UpdateRoom(roomConfig, $"{(await this._usersService.GetAsync(roomConfig.UserId)).FullName} left the room 😢", "userLeft");
         }
 
+        /// <summary>
+        /// Method that deletes Room by calling RoomDeleteOne() method
+        /// </summary>
+        /// <param name="room">JSON representation of RoomConfig class</param>
         public async Task DeleteRoom(List<string> room)
         {
             RoomConfig roomConfig = this.GenerateRoomConfig(room);

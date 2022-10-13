@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using System.Data;
+using Microsoft.AspNetCore.SignalR;
 using Study_DOT_NET.Models;
 using Study_DOT_NET.Shared.Commands.Messages;
 using Study_DOT_NET.Shared.ConfigClasses;
 using System.Text.Json;
+using Study_DOT_NET.Shared.Services;
 
 namespace Study_DOT_NET.Hubs
 {
@@ -12,26 +14,40 @@ namespace Study_DOT_NET.Hubs
         private readonly DeleteMessageCommand _deleteMessageCommand;
         private readonly UpdateMessageCommand _updateMessageCommand;
         private readonly ReadMessageCommand _readMessageCommand;
-        private readonly ILogger<Message> _logger;
+        private readonly RoomsService _roomService;
+        private readonly UserRegistryService _userRegistryService;
 
         public MessagesHub(CreateMessageCommand createMessageCommand, DeleteMessageCommand deleteMessageCommand,
-            UpdateMessageCommand updateMessageCommand, ReadMessageCommand readMessageCommand, ILogger<Message> logger)
+            UpdateMessageCommand updateMessageCommand, ReadMessageCommand readMessageCommand, RoomsService roomService,
+            UserRegistryService userRegistryService)
         {
             this._createMessageCommand = createMessageCommand;
             this._deleteMessageCommand = deleteMessageCommand;
             this._updateMessageCommand = updateMessageCommand;
             this._readMessageCommand = readMessageCommand;
-            this._logger = logger;
+            this._roomService = roomService;
+            _userRegistryService = userRegistryService;
         }
 
+        /// <summary>
+        /// This method generates new MessageConfig instance from json 
+        /// </summary>
+        /// <param name="message">JSON representation of the message content that front-end gives here</param>
+        /// <returns>new MessageConfig instance</returns>
+        /// <exception cref="NullReferenceException">If instead of JSON null was given; or if deserialization was unsuccessful</exception>
         private MessageConfig GenerateMessageConfig(List<string> message)
         {
             return JsonSerializer.Deserialize<MessageConfig>(message[0]
-                                                             ?? throw new NullReferenceException(
-                                                                 "message parameter is null"))
+                   ?? throw new NullReferenceException("message parameter is null"))
                    ?? throw new NullReferenceException("unsuccessful deserialization result is null");
         }
 
+        /// <summary>
+        /// Method that calls to generate new messages
+        /// It calls CreateMessageCommand class
+        /// </summary>
+        /// <param name="message"> JSON representation of MessageConfig class, that CreateMessageCommand class  require to work </param>
+        /// <exception cref="ApplicationException">If new message is null then something went wrong ¯\_(ツ)_/¯</exception>
         public async Task CreateMessage(List<string> message)
         {
             try
@@ -41,17 +57,35 @@ namespace Study_DOT_NET.Hubs
                 this._createMessageCommand._messageConfig = messageConfig;
                 Message? createdMessage = await this._createMessageCommand.Execute();
 
+                // Room room = await this._roomService.GetAsync(createdMessage.RoomId);
+                // foreach (string id in room.ParticipantsIds)
+                // {
+                //     var connection = this._userRegistryService.GetConnectionId(id);
+                //     Console.WriteLine($"connection is {(connection ?? "null")}");
+                //     if (connection is not null)
+                //     {
+                //         Console.WriteLine($"\\{connection} is not null/");
+                //         await Clients.Client(connection).SendAsync("newMessage", createdMessage 
+                //             ?? throw new NoNullAllowedException("sending null is forbidden"));
+                //     }
+                // }
+                
                 await Clients.All.SendAsync("newMessage", createdMessage
-                    ?? throw new ApplicationException("message prototype, occasionally, is not the message object"));
+                ?? throw new ApplicationException("message prototype, occasionally, is not the message object"));
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message, message);
-
                 throw;
             }
         }
 
+        /// <summary>
+        /// Method that calls to edit already created messages
+        /// It calls UpdateMessageCommand class
+        /// </summary>
+        /// <param name="message"> JSON representation of MessageConfig class, that UpdateMessageCommand class  require to work </param>
+        /// <exception cref="ApplicationException">If new message is null then something went wrong ¯\_(ツ)_/¯</exception>
         public async Task UpdateMessage(List<string> message)
         {
             try
@@ -71,7 +105,13 @@ namespace Study_DOT_NET.Hubs
                 throw;
             }
         }
-
+        
+        /// <summary>
+        /// Method that calls to delete messages
+        /// It calls DeleteMessageCommand class
+        /// </summary>
+        /// <param name="message"> JSON representation of MessageConfig class, that DeleteMessageCommand class  require to work </param>
+        /// <exception cref="ApplicationException">If message is null then something went wrong ¯\_(ツ)_/¯</exception>
         public async Task DeleteMessage(List<string> message)
         {
             try
@@ -91,7 +131,13 @@ namespace Study_DOT_NET.Hubs
                 throw;
             }
         }
-
+        
+        /// <summary>
+        /// Method that calls to mark message as read by someone (add to message.read array new record)
+        /// It calls ReadMessageCommand class
+        /// </summary>
+        /// <param name="message"> JSON representation of MessageConfig class, that ReadMessageCommand class  require to work </param>
+        /// <exception cref="ApplicationException">If message is null then something went wrong ¯\_(ツ)_/¯</exception>
         public async Task ReadMessage(List<string> message)
         {
             try

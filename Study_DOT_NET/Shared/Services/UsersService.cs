@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Study_DOT_NET.Models;
 using Study_DOT_NET.Shared.Models;
@@ -23,7 +24,7 @@ public class UsersService
         await this._usersCollection.Find(_ => true).ToListAsync();
 
     public async Task<User?> GetAsync(string id) => 
-        await this._usersCollection.Find((User x) => x._Id == id).FirstOrDefaultAsync();
+        await this._usersCollection.Find((User x) => (BsonString)x._Id == (BsonString)id).FirstOrDefaultAsync();
 
     public async Task CreateAsync(User newUser) =>
         await this._usersCollection.InsertOneAsync(newUser);
@@ -33,7 +34,6 @@ public class UsersService
 
     public async Task RemoveAsync(string id) =>
         await this._usersCollection.DeleteOneAsync((User x) => x._Id == id);
-
     public async Task<List<User>> SearchAsync(string name)
     {
         if (name != "*")

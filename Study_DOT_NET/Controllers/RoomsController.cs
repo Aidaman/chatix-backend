@@ -75,21 +75,39 @@ namespace Study_DOT_NET.Controllers
         }
 
         [HttpGet("availableFor/{userId:length(24)}")]
-        public async Task<List<Room>> GetAvailable(string userId)
+        public async Task<ActionResult<List<Room>>> GetAvailable(string userId)
         {
-            List<Room> rooms = await this._roomsService.GetAvailableRoomsAsync(userId);
-            rooms = await this.BuildRooms(rooms, userId);
-            return rooms;
+            return await this.GetAvailable(userId, null);
         }
-        
+
         [HttpGet("availableFor/{userId:length(24)}/{isPublic:bool}")]
-        public async Task<List<Room>> GetAvailable(string userId, bool isPublic)
+        public async Task<ActionResult<List<Room>>> GetAvailable(string userId, bool? isPublic)
         {
-            List<Room> rooms = await this._roomsService.GetAvailableRoomsAsync(userId, isPublic);
+            // isPublic??= true;
+            
+            User? user = await this._usersService.GetAsync(userId);
+            if (user is null)
+            {
+                return NotFound();
+            }
+            
+            List<Room?> rooms = new List<Room?>();
+            
+            foreach (string userRoomId in user.RoomIds)
+            {
+                rooms.Add(await this._roomsService.GetAsync(userRoomId));
+            }
+
+            rooms.RemoveAll(x => x == null);
+            if (isPublic is not null)
+            {
+                rooms.RemoveAll(x => x.IsPublic != isPublic);   
+            }
+
             rooms = await this.BuildRooms(rooms, userId);
             return rooms;
         }
-        
+
         [HttpGet("Search/{title}")]
         public async Task<ActionResult<List<Room>>> Search(string title)
         {

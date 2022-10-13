@@ -33,11 +33,6 @@ namespace Study_DOT_NET.Shared.Services
             await this._roomsCollection
                 .Find((Room x) => x.ParticipantsIds.Contains(userId) && x.IsPublic == isPublic)
                 .ToListAsync();
-        
-        public async Task<List<Room>> GetAvailableRoomsAsync(string userId) =>
-            await this._roomsCollection
-                .Find((Room x) => x.ParticipantsIds.Contains(userId))
-                .ToListAsync();
 
         public async Task CreateAsync(Room newRoom) =>
             await this._roomsCollection.InsertOneAsync(newRoom);
