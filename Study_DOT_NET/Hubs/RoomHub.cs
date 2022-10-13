@@ -16,9 +16,10 @@ namespace Study_DOT_NET.Hubs
         private readonly CreateMessageCommand _createMessageCommand;
         private readonly UsersService _usersService;
         private readonly RoomsService _roomsService;
-        public RoomHub(CreateRoomCommand createRoomCommand, UpdateRoomCommand updateRoomCommand, 
-                       DeleteRoomCommand deleteRoomCommand, CreateMessageCommand createMessageCommand, 
-                       UsersService usersService, RoomsService roomsService)
+
+        public RoomHub(CreateRoomCommand createRoomCommand, UpdateRoomCommand updateRoomCommand,
+            DeleteRoomCommand deleteRoomCommand, CreateMessageCommand createMessageCommand,
+            UsersService usersService, RoomsService roomsService)
         {
             _createRoomCommand = createRoomCommand;
             _updateRoomCommand = updateRoomCommand;
@@ -27,6 +28,7 @@ namespace Study_DOT_NET.Hubs
             _usersService = usersService;
             _roomsService = roomsService;
         }
+
         /// <summary>
         /// This method generates new RoomConfig instance from json 
         /// </summary>
@@ -36,7 +38,7 @@ namespace Study_DOT_NET.Hubs
         private RoomConfig GenerateRoomConfig(List<string> room)
         {
             return JsonSerializer.Deserialize<RoomConfig>(room[0]
-                   ?? throw new NullReferenceException("room parameter is null"))
+                                                          ?? throw new NullReferenceException("room parameter is null"))
                    ?? throw new NullReferenceException("unsuccessful deserialization result is null");
         }
 
@@ -54,7 +56,8 @@ namespace Study_DOT_NET.Hubs
                 Room? deletedRoom = await this._deleteRoomCommand.Execute();
 
                 await Clients.All.SendAsync("roomDeleted", deletedRoom
-                    ?? throw new ApplicationException("room prototype, occasionally, is not the message object"));
+                                                           ?? throw new ApplicationException(
+                                                               "room prototype, occasionally, is not the message object"));
             }
             catch (Exception ex)
             {
@@ -62,6 +65,7 @@ namespace Study_DOT_NET.Hubs
                 throw;
             }
         }
+
         /// <summary>
         /// Method that Updates room
         /// Calls UpdateRoomCommand class
@@ -74,7 +78,7 @@ namespace Study_DOT_NET.Hubs
         private async Task UpdateRoom(RoomConfig roomConfig, string message, string eventMessage)
         {
             try
-            {   
+            {
                 this._updateRoomCommand._roomConfig = roomConfig;
                 MessageConfig messageConfig = new MessageConfig()
                 {
@@ -91,17 +95,19 @@ namespace Study_DOT_NET.Hubs
                 Message? createdMessage = await this._createMessageCommand.Execute();
 
                 Console.WriteLine(updatedRoom);
-                
+
                 await Clients.All.SendAsync(eventMessage, updatedRoom
-                    ?? throw new ApplicationException("room prototype, occasionally, is not the room object"));
+                                                          ?? throw new ApplicationException(
+                                                              "room prototype, occasionally, is not the room object"));
 
                 /*
                  * If Room is Public: Do not invite users, but just add this room for them
                  * If Room is Private: Do invite users, if they refuse - do not add them
                  */
-                
+
                 await Clients.All.SendAsync("newMessage", createdMessage
-                    ?? throw new ApplicationException("message prototype, occasionally, is not the message object"));
+                                                          ?? throw new ApplicationException(
+                                                              "message prototype, occasionally, is not the message object"));
 
                 // Console.WriteLine($"room's amount of participants are: {updatedRoom.Participants.Count}");
                 if (updatedRoom.ParticipantsIds.Count < 2)
@@ -147,10 +153,12 @@ namespace Study_DOT_NET.Hubs
                 Message? createdMessage = await this._createMessageCommand.Execute();
 
                 await Clients.All.SendAsync("newRoom", createdRoom
-                    ?? throw new ApplicationException("room prototype, occasionally, is not the room object"));
-                
-                await Clients.All.SendAsync("newMessage", createdMessage 
-                    ?? throw new ApplicationException("room prototype, occasionally, is not the message object"));
+                                                       ?? throw new ApplicationException(
+                                                           "room prototype, occasionally, is not the room object"));
+
+                await Clients.All.SendAsync("newMessage", createdMessage
+                                                          ?? throw new ApplicationException(
+                                                              "room prototype, occasionally, is not the message object"));
             }
             catch (Exception ex)
             {
@@ -171,6 +179,7 @@ namespace Study_DOT_NET.Hubs
                 $"{(await this._usersService.GetAsync(roomConfig.UserId))?.FullName} has joined the {(await this._roomsService.GetAsync(roomConfig.Id))?.Title}";
             await this.UpdateRoom(roomConfig, message, "userJoin");
         }
+
         /// <summary>
         /// A method that calls by front-end for updating a room
         /// </summary>
@@ -181,9 +190,11 @@ namespace Study_DOT_NET.Hubs
             roomConfig.IsAddUser = false;
             if (roomConfig.IsPublic != null)
             {
-                await this.UpdateRoom(roomConfig, $"This room is now {((bool)roomConfig.IsPublic ? "public" : "private")}", "privacyChanged");   
+                await this.UpdateRoom(roomConfig,
+                    $"This room is now {((bool)roomConfig.IsPublic ? "public" : "private")}", "privacyChanged");
             }
         }
+
         /// <summary>
         /// A method that calls by front-end for updating a room
         /// </summary>
@@ -195,6 +206,7 @@ namespace Study_DOT_NET.Hubs
             roomConfig.IsAddUser = false;
             await this.UpdateRoom(roomConfig, $"Room has been renamed to: {roomConfig.Title}", "roomRename");
         }
+
         /// <summary>
         /// A method that calls by front-end for updating a room
         /// </summary>
@@ -203,7 +215,8 @@ namespace Study_DOT_NET.Hubs
         {
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
             roomConfig.IsAddUser = false;
-            await this.UpdateRoom(roomConfig, $"{(await this._usersService.GetAsync(roomConfig.UserId)).FullName} left the room 😢", "userLeft");
+            await this.UpdateRoom(roomConfig,
+                $"{(await this._usersService.GetAsync(roomConfig.UserId)).FullName} left the room 😢", "userLeft");
         }
 
         /// <summary>
@@ -223,7 +236,13 @@ namespace Study_DOT_NET.Hubs
                 IsAddUser = true,
                 UserId = user._Id,
             };
-            await this.UpdateRoom(roomConfig, $"{user.FullName} accepted invitation to {room.Title}", "userJoined");
+            await this.UpdateRoom(roomConfig, $"{user.FullName} accepted invitation to “{room.Title}”", "userJoined");
+        }
+
+        public async Task RejectInvitation(Room room, User user)
+        {
+            await this.UpdateRoom(new RoomConfig(), $"{user.FullName} rejected to join “{room.Title}”",
+                "userRejectedInvitation");
         }
     }
 }
