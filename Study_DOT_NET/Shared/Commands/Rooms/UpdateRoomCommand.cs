@@ -36,7 +36,9 @@ public class UpdateRoomCommand : RoomCommand
                 room.Title = this._roomConfig.Title;
             }
 
-            if (this._roomConfig.IsAddUser)
+            if (this._roomConfig.IsAddUser && 
+                room.CreatorId != this._roomConfig.UserId && 
+                !room.ParticipantsIds.Contains(this._roomConfig.UserId))
             {
                 room.ParticipantsIds.Add(this._roomConfig.UserId);
             }

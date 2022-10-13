@@ -95,6 +95,11 @@ namespace Study_DOT_NET.Hubs
                 await Clients.All.SendAsync(eventMessage, updatedRoom
                     ?? throw new ApplicationException("room prototype, occasionally, is not the room object"));
 
+                /*
+                 * If Room is Public: Do not invite users, but just add this room for them
+                 * If Room is Private: Do invite users, if they refuse - do not add them
+                 */
+                
                 await Clients.All.SendAsync("newMessage", createdMessage
                     ?? throw new ApplicationException("message prototype, occasionally, is not the message object"));
 
@@ -209,6 +214,16 @@ namespace Study_DOT_NET.Hubs
         {
             RoomConfig roomConfig = this.GenerateRoomConfig(room);
             await this.RoomDeleteOne(roomConfig);
+        }
+
+        public async Task AcceptInvitation(Room room, User user)
+        {
+            RoomConfig roomConfig = new RoomConfig()
+            {
+                IsAddUser = true,
+                UserId = user._Id,
+            };
+            await this.UpdateRoom(roomConfig, $"{user.FullName} accepted invitation to {room.Title}", "userJoined");
         }
     }
 }
