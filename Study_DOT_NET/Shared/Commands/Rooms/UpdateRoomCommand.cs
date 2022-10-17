@@ -13,59 +13,48 @@ public class UpdateRoomCommand : RoomCommand
         UsersService usersService)
         : base(prototypeRegistryService.GetPrototypeById("room") as Room, new RoomConfig(), roomsService)
     {
-        this._usersService = usersService;
+        _usersService = usersService;
     }
 
     public override async Task<Room?> Execute()
     {
-        if (this.prototype.Clone() is Room room)
+        if (prototype.Clone() is Room room)
         {
-            room = await this._roomsService.GetAsync(this._roomConfig.Id)
+            room = await _roomsService.GetAsync(_roomConfig.Id)
                    ?? throw new NullReferenceException("No such room is present in Database");
 
             room.Participants = new List<User>();
-            room.Creator = await this._usersService.GetAsync(room.CreatorId);
+            room.Creator = await _usersService.GetAsync(room.CreatorId);
 
-            if (this._roomConfig.IsPublic != null)
-            {
-                room.IsPublic = this._roomConfig.IsPublic;
-            }
+            if (_roomConfig.IsPublic != null) room.IsPublic = _roomConfig.IsPublic;
 
-            if (this._roomConfig.Title != String.Empty)
-            {
-                room.Title = this._roomConfig.Title;
-            }
+            if (_roomConfig.Title != string.Empty) room.Title = _roomConfig.Title;
 
-            if (this._roomConfig.IsAddUser && 
-                room.CreatorId != this._roomConfig.UserId && 
-                !room.ParticipantsIds.Contains(this._roomConfig.UserId))
+            if (_roomConfig.IsAddUser &&
+                room.CreatorId != _roomConfig.UserId &&
+                !room.ParticipantsIds.Contains(_roomConfig.UserId))
             {
-                room.ParticipantsIds.Add(this._roomConfig.UserId);
+                room.ParticipantsIds.Add(_roomConfig.UserId);
             }
             else
             {
                 if (_roomConfig.UserId == room.CreatorId)
-                {
                     throw new ApplicationException("Creator can not delete itself");
-                }
 
-                if (_roomConfig.UserId != String.Empty)
-                {
+                if (_roomConfig.UserId != string.Empty)
                     room.ParticipantsIds = room.ParticipantsIds
-                        .Where((string participant) => participant != this._roomConfig.UserId)
+                        .Where(participant => participant != _roomConfig.UserId)
                         .ToList();
-                }
             }
 
-            foreach (string participant in room.ParticipantsIds)
-            {
-                room.Participants.Add(await this._usersService.GetAsync(participant) ??
+            foreach (var participant in room.ParticipantsIds)
+                room.Participants.Add(await _usersService.GetAsync(participant) ??
                                       throw new NullReferenceException("There is no such User"));
-            }
 
-            await this._roomsService.UpdateAsync(room.Id, room);
+            await _roomsService.UpdateAsync(room.Id, room);
             return room;
         }
-        else return null;
+
+        return null;
     }
 }

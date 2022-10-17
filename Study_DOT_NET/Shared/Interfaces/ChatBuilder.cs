@@ -1,7 +1,6 @@
-﻿namespace Study_DOT_NET.Shared.Interfaces
+﻿namespace Study_DOT_NET.Shared.Interfaces;
+
+public interface IChatBuilder
 {
-    public interface IChatBuilder
-    {
-        public IPrototype Build();
-    }
+    public IPrototype Build();
 }

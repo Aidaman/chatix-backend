@@ -9,35 +9,35 @@ public class CreateMessageCommand : MessageCommand
 {
     private readonly UsersService _usersService;
 
-    public CreateMessageCommand(PrototypeRegistryService prototypeRegistryService, MessagesService messagesService, 
+    public CreateMessageCommand(PrototypeRegistryService prototypeRegistryService, MessagesService messagesService,
         UsersService usersService)
         : base(prototypeRegistryService.GetPrototypeById("message") as Message, new MessageConfig(), messagesService)
     {
-        this._usersService = usersService;
+        _usersService = usersService;
     }
 
     private async Task BuildMessage(Message message)
     {
-        message.MessageContent = this._messageConfig.MessageContent;
-        message.IsSystemMessage = this._messageConfig.IsSystem;
-        message.RoomId = this._messageConfig.RoomId;
-        message.CreatorId = this._messageConfig.UserId;
+        message.MessageContent = _messageConfig.MessageContent;
+        message.IsSystemMessage = _messageConfig.IsSystem;
+        message.RoomId = _messageConfig.RoomId;
+        message.CreatorId = _messageConfig.UserId;
         message.CreatedAt = DateTime.Now;
         message.UpdatedAt = DateTime.Now;
     }
 
     public override async Task<Message?> Execute()
     {
-        if (this.prototype.Clone() is Message message)
+        if (prototype.Clone() is Message message)
         {
-            await this.BuildMessage(message);
+            await BuildMessage(message);
 
-            if (this._messageConfig.IsForwarded)
+            if (_messageConfig.IsForwarded)
             {
-                message = await this._messagesService.GetAsync(this._messageConfig.Id) ??
+                message = await _messagesService.GetAsync(_messageConfig.Id) ??
                           throw new NullReferenceException("There is no such message");
 
-                message.RoomId = this._messageConfig.RoomId;
+                message.RoomId = _messageConfig.RoomId;
                 message.CreatedAt = DateTime.Now;
                 message.UpdatedAt = DateTime.Now;
 
@@ -46,11 +46,12 @@ public class CreateMessageCommand : MessageCommand
             }
 
             message.ReadBy = new List<string>();
-            message.Creator = await this._usersService.GetAsync(message.CreatorId);
+            message.Creator = await _usersService.GetAsync(message.CreatorId);
 
-            await this._messagesService.CreateAsync(message);
+            await _messagesService.CreateAsync(message);
             return message;
         }
-        else return null;
+
+        return null;
     }
 }

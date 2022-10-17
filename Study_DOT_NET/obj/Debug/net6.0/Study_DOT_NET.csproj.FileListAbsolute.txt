@@ -109,3 +109,4 @@ C:\projects\bench\chatix-backend\Study_DOT_NET\obj\Debug\net6.0\Study_DOT_NET.pd
 C:\projects\bench\chatix-backend\Study_DOT_NET\obj\Debug\net6.0\Study_DOT_NET.genruntimeconfig.cache
 C:\projects\bench\chatix-backend\Study_DOT_NET\obj\Debug\net6.0\ref\Study_DOT_NET.dll
 C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\libman.json
+C:\Users\User\source\repos\Study_DOT_NET\Study_DOT_NET\bin\Debug\net6.0\AspNet.Security.OAuth.GitHub.dll

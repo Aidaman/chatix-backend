@@ -12,37 +12,44 @@ public class UsersService
     //TODO: Authentication
 
     private readonly IMongoCollection<User> _usersCollection;
-    
+
     public UsersService(IOptions<ChatDatabaseSettings> chatDatabaseSettings)
     {
-        MongoClient mongoClient = new MongoClient(chatDatabaseSettings.Value.ConnectionString);
-        IMongoDatabase mongoDatabase = mongoClient.GetDatabase(chatDatabaseSettings.Value.DatabaseName);
-        this._usersCollection = mongoDatabase.GetCollection<User>(chatDatabaseSettings.Value.UsersCollectionName);
+        var mongoClient = new MongoClient(chatDatabaseSettings.Value.ConnectionString);
+        var mongoDatabase = mongoClient.GetDatabase(chatDatabaseSettings.Value.DatabaseName);
+        _usersCollection = mongoDatabase.GetCollection<User>(chatDatabaseSettings.Value.UsersCollectionName);
     }
 
-    public async Task<List<User>> GetAsync() =>
-        await this._usersCollection.Find(_ => true).ToListAsync();
+    public async Task<List<User>> GetAsync()
+    {
+        return await _usersCollection.Find(_ => true).ToListAsync();
+    }
 
-    public async Task<User?> GetAsync(string id) => 
-        await this._usersCollection.Find((User x) => (BsonString)x._Id == (BsonString)id).FirstOrDefaultAsync();
+    public async Task<User?> GetAsync(string id)
+    {
+        return await _usersCollection.Find(x => (BsonString)x._Id == (BsonString)id).FirstOrDefaultAsync();
+    }
 
-    public async Task CreateAsync(User newUser) =>
-        await this._usersCollection.InsertOneAsync(newUser);
+    public async Task CreateAsync(User newUser)
+    {
+        await _usersCollection.InsertOneAsync(newUser);
+    }
 
-    public async Task UpdateAsync(string id, User updatedUser) =>
-        await this._usersCollection.ReplaceOneAsync((User x) => x._Id == id, updatedUser);
+    public async Task UpdateAsync(string id, User updatedUser)
+    {
+        await _usersCollection.ReplaceOneAsync(x => x._Id == id, updatedUser);
+    }
 
-    public async Task RemoveAsync(string id) =>
-        await this._usersCollection.DeleteOneAsync((User x) => x._Id == id);
+    public async Task RemoveAsync(string id)
+    {
+        await _usersCollection.DeleteOneAsync(x => x._Id == id);
+    }
+
     public async Task<List<User>> SearchAsync(string name)
     {
         if (name != "*")
-        {
-            return await this._usersCollection.Find((User x) => x.FullName.ToLower().Contains(name.ToLower())).ToListAsync();
-        }
-        else
-        {
-            return await this.GetAsync();
-        }
+            return await _usersCollection.Find(x => x.FullName.ToLower().Contains(name.ToLower()))
+                .ToListAsync();
+        return await GetAsync();
     }
 }

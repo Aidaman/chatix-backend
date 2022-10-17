@@ -1,26 +1,17 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Study_DOT_NET.Shared.ConfigClasses
+namespace Study_DOT_NET.Shared.ConfigClasses;
+
+public class RoomConfig
 {
-    public class RoomConfig
-    {
-        [JsonPropertyName("roomId")]
-        public string Id { get; set; } = String.Empty;
-        [JsonPropertyName("creatorId")]
-        public string CreatorId { get; set; } = String.Empty;
-        [JsonPropertyName("userId")]
-        public string UserId { get; set; } = String.Empty;
-        [JsonPropertyName("title")]
-        public string Title { get; set; } = String.Empty;
-        [JsonPropertyName("participants")]
-        public List<string> Participants { get; set; } = null!;
+    [JsonPropertyName("roomId")] public string Id { get; set; } = string.Empty;
+    [JsonPropertyName("creatorId")] public string CreatorId { get; set; } = string.Empty;
+    [JsonPropertyName("userId")] public string UserId { get; set; } = string.Empty;
+    [JsonPropertyName("title")] public string Title { get; set; } = string.Empty;
+    [JsonPropertyName("participants")] public List<string> Participants { get; set; } = null!;
 
-        [JsonPropertyName("lastAction")]
-        public DateTime LastAction { get; set; } = DateTime.Now;
+    [JsonPropertyName("lastAction")] public DateTime LastAction { get; set; } = DateTime.Now;
 
-        [JsonPropertyName("isPublic")] 
-        public bool? IsPublic { get; set; } = null;
-        [JsonIgnore]
-        public bool IsAddUser { get; set; }
-    }
+    [JsonPropertyName("isPublic")] public bool? IsPublic { get; set; } = null;
+    [JsonIgnore] public bool IsAddUser { get; set; }
 }

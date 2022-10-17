@@ -4,140 +4,120 @@ using Study_DOT_NET.Shared.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace Study_DOT_NET.Controllers
+namespace Study_DOT_NET.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class MessagesController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class MessagesController : ControllerBase
+    private readonly MessagesService _messagesService;
+    private readonly RoomsService _roomsService;
+    private readonly UsersService _usersService;
+
+    public MessagesController(MessagesService messagesService, UsersService usersService, RoomsService roomsService)
     {
-        private readonly MessagesService _messagesService;
-        private readonly UsersService _usersService;
-        private readonly RoomsService _roomsService;
+        _messagesService = messagesService;
+        _usersService = usersService;
+        _roomsService = roomsService;
+    }
 
-        public MessagesController(MessagesService messagesService, UsersService usersService, RoomsService roomsService)
-        {
-            this._messagesService = messagesService;
-            this._usersService = usersService;
-            this._roomsService = roomsService;
-        }
+    [HttpGet]
+    public async Task<List<Message>> Get()
+    {
+        Console.WriteLine("GET messages");
+        return await _messagesService.GetAsync();
+    }
 
-        [HttpGet]
-        public async Task<List<Message>> Get()
-        {
-            Console.WriteLine("GET messages");
-            return await this._messagesService.GetAsync();
-        }
+    [HttpGet("{id:length(24)}")]
+    public async Task<ActionResult<Message>> Get(string id)
+    {
+        Console.WriteLine($"GET message by ID: {id}");
+        var message = await _messagesService.GetAsync(id);
 
-        [HttpGet("{id:length(24)}")]
-        public async Task<ActionResult<Message>> Get(string id)
+        if (message is null) return NotFound();
+
+        return message;
+    }
+
+    [HttpGet("RoomContent/{roomId:length(24)}/{offset}/{limit}")]
+    public async Task<List<Message>?> Get(string roomId, int offset, int limit)
+    {
+        var messages = await _messagesService.GetRoomContentAsync(roomId, offset, limit);
+
+        if (messages == null) return null;
+
+        foreach (var message in messages)
         {
-            Console.WriteLine($"GET message by ID: {id}");
-            Message message = await this._messagesService.GetAsync(id);
-        
-            if (message is null)
+            /*
+             if there is no such user in the List above then
+             -> it search a user
+             -> adds to list
+             Why? Because making queries for EACH message, to get same users - are irrational
+            */
+            var creator =
+                _roomsService.Participants.FirstOrDefault(user => user._Id == message.CreatorId, null);
+            if (creator != null)
             {
-                return NotFound();
+                message.Creator = creator;
             }
-
-            return message;
+            else
+            {
+                var user = await _usersService.GetAsync(message.CreatorId);
+                _roomsService.Participants.Add(user);
+                message.Creator = user;
+            }
         }
 
-        [HttpGet("RoomContent/{roomId:length(24)}/{offset}/{limit}")]
-        public async Task<List<Message>?> Get(string roomId, int offset, int limit)
-        {
-            List<Message>? messages = await this._messagesService.GetRoomContentAsync(roomId, offset, limit);
+        messages.Reverse();
+        return messages;
+    }
 
-            if (messages == null)
-            {
-                return null;
-            }
-            
-            foreach (Message message in messages)
-            {
-                /*
-                 if there is no such user in the List above then
-                 -> it search a user
-                 -> adds to list
-                 Why? Because making queries for EACH message, to get same users - are irrational
-                */
-                User? creator = this._roomsService.Participants.FirstOrDefault(user => user._Id == message.CreatorId, null);
-                if (creator != null) 
-                {
-                    message.Creator = creator;
-                }
-                else
-                {
-                    User? user = await _usersService.GetAsync(message.CreatorId);
-                    this._roomsService.Participants.Add(user);
-                    message.Creator = user;
-                }
-            }
+    [HttpGet("RoomAmountOfMessage/{roomId}")]
+    public async Task<int> GetAmountOfMessages(string roomId)
+    {
+        if (roomId.ToLower() == "common") return 0;
 
-            messages.Reverse();
-            return messages;
-        }
+        var result = await _messagesService.getAllMessagesFromRoom(roomId);
 
-        [HttpGet("RoomAmountOfMessage/{roomId}")]
-        public async Task<int> GetAmountOfMessages(string roomId)
-        {
-            if (roomId.ToLower() == "common")
-            {
-                return 0;
-            }
+        if (result == null) return 0;
 
-            List<Message> result = await this._messagesService.getAllMessagesFromRoom(roomId);
+        return result.Count;
+    }
 
-            if (result == null)
-            {
-                return 0;
-            }
+    [HttpPost]
+    public async Task<IActionResult> Post(Message newMessage)
+    {
+        await _messagesService.CreateAsync(newMessage);
 
-            return result.Count;
-        }
+        //CreatedAtAction() - creates ICreatedAtAction object that basically returns 201 response with Location header
+        return CreatedAtAction(nameof(Get), new { id = newMessage.Id }, newMessage);
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> Post(Message newMessage)
-        {
-            await this._messagesService.CreateAsync(newMessage);
+    [HttpPut("id:length(24)")]
+    public async Task<IActionResult> Update(string id, Message updatedMessage)
+    {
+        var message = await _messagesService.GetAsync(id);
 
-            //CreatedAtAction() - creates ICreatedAtAction object that basically returns 201 response with Location header
-            return CreatedAtAction(nameof(Get), new { id = newMessage.Id }, newMessage);
-        }
+        if (message is null) return NotFound();
 
-        [HttpPut("id:length(24)")]
-        public async Task<IActionResult> Update(string id, Message updatedMessage)
-        {
-            Message message = await this._messagesService.GetAsync(id);
+        updatedMessage.Id = message.Id;
 
-            if (message is null)
-            {
-                return NotFound();
-            }
+        await _messagesService.UpdateAsync(id, updatedMessage);
 
-            updatedMessage.Id = message.Id;
+        //NoContent() - creates NoContentResult object that basically returns response to server and signalling that there is empty response body
+        return NoContent();
+    }
 
-            await this._messagesService.UpdateAsync(id, updatedMessage);
+    [HttpDelete("id:length(24)")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var message = await _messagesService.GetAsync(id);
 
-            //NoContent() - creates NoContentResult object that basically returns response to server and signalling that there is empty response body
-            return NoContent();
-        }
+        if (message is null) return NotFound();
 
-        [HttpDelete("id:length(24)")]
-        public async Task<IActionResult> Delete(string id)
-        {
-            Message message = await this._messagesService.GetAsync(id);
+        await _messagesService.RemoveAsync(id);
 
-            if (message is null)
-            {
-                return NotFound();
-            }
-
-            await this._messagesService.RemoveAsync(id);
-
-            //NoContent() - creates NoContentResult object that basically returns response to server and signalling that there is empty response body
-            return NoContent();
-        }
-
-
+        //NoContent() - creates NoContentResult object that basically returns response to server and signalling that there is empty response body
+        return NoContent();
     }
 }

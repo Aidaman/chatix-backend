@@ -1,29 +1,25 @@
-using Study_DOT_NET.Shared.Models;
-using Study_DOT_NET.Shared.Services;
-using System.Net.WebSockets;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Study_DOT_NET.Hubs;
-using Study_DOT_NET.Shared.Builders;
-using Microsoft.AspNetCore.Cors;
 using Study_DOT_NET.Shared.Commands.Messages;
 using Study_DOT_NET.Shared.Commands.Rooms;
-
+using Study_DOT_NET.Shared.Models;
+using Study_DOT_NET.Shared.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// builder.Services.AddCors(options =>
-// {
-//     options.AddPolicy("CorsPolicy", corsPolicyBuilder => corsPolicyBuilder
-//         .WithOrigins("http://localhost:4200")
-//         .AllowAnyMethod()
-//         .AllowAnyHeader()
-//         .AllowCredentials()
-//         // .AllowAnyHeader()
-//         // .AllowAnyMethod()
-//         // .AllowAnyOrigin()
-//     );
-// });
-builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", corsPolicyBuilder => corsPolicyBuilder
+        .WithOrigins("http://localhost:4200")
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials()
+        // .AllowAnyHeader()
+        // .AllowAnyMethod()
+        // .AllowAnyOrigin()
+    );
+});
+// builder.Services.AddCors();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -38,10 +34,7 @@ builder.Services.AddAuthentication(options =>
     options.ClientSecret = builder.Configuration["Github:ClientSecret"];
 });
 
-builder.Services.AddSignalR(options => 
-{ 
-    options.EnableDetailedErrors = true; 
-});
+builder.Services.AddSignalR(options => { options.EnableDetailedErrors = true; });
 
 builder.Services.Configure<ChatDatabaseSettings>(
     builder.Configuration.GetSection("ChatDatabase"));
@@ -63,15 +56,10 @@ builder.Services.AddSingleton<UpdateRoomCommand>();
 
 builder.Services.AddControllers();
 
-WebApplication app = builder.Build();
+var app = builder.Build();
 
 app.UseHttpsRedirection();
-app.UseCors(it =>
-{
-    it.AllowAnyHeader();
-    it.AllowAnyMethod();
-    it.AllowAnyOrigin();
-});
+app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

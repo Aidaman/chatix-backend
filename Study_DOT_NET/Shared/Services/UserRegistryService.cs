@@ -2,18 +2,18 @@
 
 public class UserRegistryService
 {
-    /// <summary>
-    /// Keys are User's Ids, Values are Connection's Ids
-    /// </summary>
-    private Dictionary<string, string> UserRegistry { get; }
-
     public UserRegistryService()
     {
         UserRegistry = new Dictionary<string, string>();
     }
 
     /// <summary>
-    ///  Gets a connectionId from a dictionary
+    ///     Keys are User's Ids, Values are Connection's Ids
+    /// </summary>
+    private Dictionary<string, string> UserRegistry { get; }
+
+    /// <summary>
+    ///     Gets a connectionId from a dictionary
     /// </summary>
     /// <param name="userId"></param>
     /// <returns>string representation of connection Id, or null if there were not such connection id</returns>
@@ -21,7 +21,7 @@ public class UserRegistryService
     {
         try
         {
-            return this.UserRegistry[userId];
+            return UserRegistry[userId];
         }
         catch (Exception e)
         {
@@ -30,17 +30,17 @@ public class UserRegistryService
     }
 
     /// <summary>
-    ///  Gets a UserId from a dictionary
+    ///     Gets a UserId from a dictionary
     /// </summary>
     /// <param name="connectionId"></param>
     /// <returns>string representation of user Id, or null if there were not such user id</returns>
     public string? GetUserId(string connectionId)
     {
-        return this.UserRegistry.Values.FirstOrDefault(x => x == connectionId, null);
+        return UserRegistry.Values.FirstOrDefault(x => x == connectionId, null);
     }
 
     /// <summary>
-    ///  Adds new record to a dictionary
+    ///     Adds new record to a dictionary
     /// </summary>
     /// <param name="connectionId"> Connection id that tied to a user's id </param>
     /// <param name="userId"> User id is a generic user's id </param>
@@ -48,32 +48,29 @@ public class UserRegistryService
     public string AppendOne(string connectionId, string userId)
     {
         Console.WriteLine($"connectionId: {connectionId} | userId: {userId}");
-        if (this.UserRegistry.ContainsKey(userId))
-        {
-            this.UserRegistry[userId] = connectionId;
-        }
+        if (UserRegistry.ContainsKey(userId))
+            UserRegistry[userId] = connectionId;
         else
-        {
-            this.UserRegistry.Add(userId, connectionId);
-        }
+            UserRegistry.Add(userId, connectionId);
+
         return $"{userId} : {connectionId}";
     }
 
     /// <summary>
-    ///  Removes a record from a dictionary
+    ///     Removes a record from a dictionary
     /// </summary>
     /// <param name="userId"> User id is a generic user's id </param>
     /// <returns>Generic string that says id that were removed</returns>
     public string RemoveOne(string userId)
     {
-        this.UserRegistry.Remove(userId);
+        UserRegistry.Remove(userId);
         return $"Removed {userId}";
     }
 
     public override string ToString()
     {
-        string res = "";
-        foreach (KeyValuePair<string, string> pair in UserRegistry)
+        var res = "";
+        foreach (var pair in UserRegistry)
         {
             Console.WriteLine($"*> Pair: {pair}");
             res += $"--> {pair.Key} : {pair.Value}\n";

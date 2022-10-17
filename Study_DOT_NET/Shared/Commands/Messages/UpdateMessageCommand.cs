@@ -8,7 +8,8 @@ namespace Study_DOT_NET.Shared.Commands.Messages;
 public class UpdateMessageCommand : MessageCommand
 {
     private readonly UsersService _usersService;
-    public UpdateMessageCommand(PrototypeRegistryService prototypeRegistryService, MessagesService messagesService, 
+
+    public UpdateMessageCommand(PrototypeRegistryService prototypeRegistryService, MessagesService messagesService,
         UsersService usersService)
         : base(prototypeRegistryService.GetPrototypeById("message") as Message, new MessageConfig(), messagesService)
     {
@@ -17,17 +18,18 @@ public class UpdateMessageCommand : MessageCommand
 
     public override async Task<Message?> Execute()
     {
-        if (this.prototype.Clone() is Message message)
+        if (prototype.Clone() is Message message)
         {
-            message = await this._messagesService.GetAsync(this._messageConfig.Id) ??
+            message = await _messagesService.GetAsync(_messageConfig.Id) ??
                       throw new NullReferenceException("Such message does not exist in the DB");
-            message.MessageContent = this._messageConfig.MessageContent;
-            
-            await this._messagesService.UpdateAsync(message.Id, message);
-            message.Creator = await this._usersService.GetAsync(message.CreatorId);
-            
+            message.MessageContent = _messageConfig.MessageContent;
+
+            await _messagesService.UpdateAsync(message.Id, message);
+            message.Creator = await _usersService.GetAsync(message.CreatorId);
+
             return message;
         }
-        else return null;
+
+        return null;
     }
 }

@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using Study_DOT_NET.Shared.Interfaces;
 
 namespace Study_DOT_NET.Models;
 
-public class User: IPrototype
+public class User : IPrototype
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -25,14 +25,11 @@ public class User: IPrototype
     [JsonPropertyName("isOnline")]
     public bool IsOnline { get; set; } = false;
 
-    [BsonElement("blacklist")]
-    public List<string> Blacklist { get; set; } = null!;
+    [BsonElement("blacklist")] public List<string> Blacklist { get; set; } = null!;
 
-    [BsonElement("colorTheme")]
-    public string ColorTheme { get; set; } = null!;
+    [BsonElement("colorTheme")] public string ColorTheme { get; set; } = null!;
 
-    [BsonElement("id")]
-    public string? Id { get; set; } = null;
+    [BsonElement("id")] public string? Id { get; set; } = null;
 
     [BsonElement("name")]
     [JsonPropertyName("name")]
@@ -41,15 +38,13 @@ public class User: IPrototype
     [BsonElement("avatar")]
     [JsonPropertyName("avatar")]
     public string Avatar { get; set; } = null!;
-    
+
     [BsonElement("roomIds")]
     [BsonRepresentation(BsonType.ObjectId)]
     [JsonIgnore]
     public List<string> RoomIds { get; set; } = null!;
 
-    [BsonElement("__v")]
-    [JsonIgnore]
-    public Int32 __V { get; set; }
+    [BsonElement("__v")] [JsonIgnore] public int __V { get; set; }
 
     public IPrototype Clone()
     {

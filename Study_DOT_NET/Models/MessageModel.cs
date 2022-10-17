@@ -25,7 +25,7 @@ public class Message : IPrototype
     [BsonRepresentation(BsonType.DateTime)]
     [JsonPropertyName("createdAt")]
     public DateTime? CreatedAt { get; set; } = null;
-    
+
     [BsonElement("updatedAt")]
     [BsonRepresentation(BsonType.DateTime)]
     [JsonPropertyName("updatedAt")]
@@ -52,9 +52,7 @@ public class Message : IPrototype
     [JsonPropertyName("isForwardedMessage")]
     public bool IsForwardedMessage { get; set; } = false;
 
-    [BsonElement("__v")]
-    [JsonIgnore]
-    public Int32 __v { get; set; }
+    [BsonElement("__v")] [JsonIgnore] public int __v { get; set; }
 
     public IPrototype Clone()
     {

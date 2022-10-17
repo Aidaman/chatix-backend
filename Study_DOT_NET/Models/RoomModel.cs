@@ -1,11 +1,11 @@
-﻿using MongoDB.Bson;
+﻿using System.Text.Json.Serialization;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Study_DOT_NET.Shared.Interfaces;
-using System.Text.Json.Serialization;
 
 namespace Study_DOT_NET.Models;
 
-public class Room: IPrototype
+public class Room : IPrototype
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -49,11 +49,9 @@ public class Room: IPrototype
 
     [BsonElement("unread")]
     [JsonPropertyName("unread")]
-    public Int32 AmountOfUnread { get; set; } = 0;
+    public int AmountOfUnread { get; set; } = 0;
 
-    [BsonElement("__v")]
-    [JsonIgnore]
-    public Int32 __V { get; set; }
+    [BsonElement("__v")] [JsonIgnore] public int __V { get; set; }
 
     public IPrototype Clone()
     {

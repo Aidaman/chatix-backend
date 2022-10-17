@@ -5,19 +5,16 @@ using Study_DOT_NET.Shared.Services;
 
 namespace Study_DOT_NET.Shared.AbstractClasses;
 
-public abstract class MessageCommand: Command
+public abstract class MessageCommand : Command
 {
     protected readonly MessagesService _messagesService;
     public MessageConfig _messageConfig;
 
     protected MessageCommand(Message message, MessageConfig data, MessagesService messagesService) : base(message)
     {
-        if (data.UserId == "system" || data.UserId == String.Empty)
-        {
-            ((this.prototype as Message)!).IsSystemMessage = true;
-        }
+        if (data.UserId == "system" || data.UserId == string.Empty) (prototype as Message)!.IsSystemMessage = true;
 
-        this._messagesService = messagesService;
+        _messagesService = messagesService;
         _messageConfig = data;
     }
 }
